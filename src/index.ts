@@ -5,6 +5,10 @@ export const client = new discord.Client({
     intents: 2 ** 15 - 1
 });
 
+process.on('unhandledRejection', ((reason) => {
+    console.error(reason)
+}))
+
 // client初期化後でないとコグロード不可
 import './cogs'
 
