@@ -13,7 +13,6 @@ import {
 } from 'discord.js';
 import {supportChannelId, supportEnterChannelId} from '../constant';
 import {userMention} from '@discordjs/builders';
-import {embedFieldPredicate} from '@discordjs/builders/dist/messages/embed/Assertions';
 
 const buttonName = 'supportStart'
 const cancelSelect: MessageSelectOptionData = {
@@ -144,13 +143,11 @@ async function startSupport(interaction: ButtonInteraction) {
         content: userMention(interaction.user.id) + '\nスレッドを作成しました。'
     })
     try {
-
         await FirstAction({interaction: interaction, thread})
     } catch (e) {
         console.trace(e)
         await thread.delete()
     }
-
 }
 
 type FirstArgs = { interaction: MessageComponentInteraction, thread: ThreadChannel }
