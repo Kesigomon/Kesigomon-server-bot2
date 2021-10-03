@@ -359,6 +359,7 @@ async function QuestionAction1(args: ThirdArgs) {
         const value = interaction1.values[0]
         if (value === 'cancel') {
             await thread.delete()
+            return
         } else {
             await message.delete()
         }
