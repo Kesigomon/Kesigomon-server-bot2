@@ -1,8 +1,9 @@
 {
   "scripts": {
     "build": "npx tsc",
-    "build:production": "npx tsc --sourceMap false",
-    "run": "node ./out"
+    "build:production": "rm -r ./out; npx tsc --sourceMap false",
+    "run": "node ./out",
+    "deploy": "sftp -b deploy.bat raspi"
   },
   "devDependencies": {
     "@types/node": "^16.10.2",

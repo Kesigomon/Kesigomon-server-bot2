@@ -16,7 +16,7 @@ import {userMention} from '@discordjs/builders';
 
 const buttonName = 'supportStart'
 const cancelSelect: MessageSelectOptionData = {
-    label: 'キャンセル',
+    label: 'キャンセル（スレッド削除）',
     value: 'cancel'
 }
 
@@ -108,7 +108,52 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on('ready', async () => {
     // await sendSupportButton()
+    // await client.destroy()
 })
+
+function MessageInteractionListener(option: {
+    thread: ThreadChannel,
+    message: Message,
+    ignore: (interaction: MessageComponentInteraction) => boolean
+    back?: () => Promise<void>,
+}){
+    const {thread, message, ignore, back} = option
+    const collector = thread.createMessageComponentCollector({
+        filter: (args) => (args.message.id === message.id)
+    });
+    return new Promise<void | {newInteraction: MessageComponentInteraction, value: string}>((resolve, reject) => {
+        const listener = async (newInteraction: MessageComponentInteraction) => {
+            if(ignore(newInteraction)){
+                await newInteraction.deferUpdate()
+                return
+            }
+            const value = (() => {
+                if(newInteraction.isSelectMenu()){
+                    return newInteraction.values[0]
+                } else if (newInteraction.isButton()){
+                    return newInteraction.customId
+                }
+            })()
+            if(!value){
+                await newInteraction.deferUpdate()
+                return
+            }
+            collector.off('collect', listener);
+            if (value === 'cancel') {
+                thread.delete().then(() => resolve())
+            }
+            else if (value === 'back') {
+                back ? resolve(back()) : resolve()
+                return
+            }
+            else{
+                resolve({newInteraction, value})
+            }
+        }
+        collector.on('collect', listener)
+    })
+}
+
 
 async function sendSupportButton() {
     const channel = client.channels.cache.get(supportEnterChannelId)
@@ -137,7 +182,7 @@ async function startSupport(interaction: ButtonInteraction) {
     }
     const thread = await channel.threads.create({
         name: '受付中',
-        autoArchiveDuration: 1440
+        autoArchiveDuration: 60
     });
     await thread.send({
         content: userMention(interaction.user.id) + '\nスレッドを作成しました。'
@@ -154,10 +199,8 @@ type FirstArgs = { interaction: MessageComponentInteraction, thread: ThreadChann
 
 
 async function FirstAction(args: FirstArgs) {
-    await SecondAction({
-        ...args,
-        version: 'v2',
-        back: () => FirstAction(args)
+    await _FirstAction({
+        ...args
     })
 }
 
@@ -187,29 +230,19 @@ async function _FirstAction(args: FirstArgs) {
         content: 'あなたが質問しようとしているのはv2, v3どちらについての質問ですか？',
         components: [row]
     })
-    const collector = thread.createMessageComponentCollector({
-        message
-    });
-    const listener = async (interaction1: MessageComponentInteraction) => {
-        if (interaction1.user.id === interaction.user.id && interaction1.isSelectMenu()) {
-            collector.off('collect', listener)
-            await message.delete()
-            const version = interaction1.values[0]
-            if (version === 'cancel') {
-                await thread.delete()
-                return
-            }
-            await SecondAction({
-                version: version as VersionType,
-                interaction: interaction1,
-                thread,
-                back: () => FirstAction(args)
-            })
-        } else {
-            await interaction1.deferUpdate()
-        }
+    const ret = await MessageInteractionListener({
+        thread, message,
+        ignore:((i)=> i.user.id !== interaction.user.id || !interaction.isSelectMenu()),
+        back: () => FirstAction(args),
+    })
+    if (ret){
+        await SecondAction({
+            ...args,
+            interaction: ret.newInteraction,
+            version: ret.value as VersionType,
+            back: () => _FirstAction(args)
+        })
     }
-    collector.on('collect', listener)
 }
 
 type SecondArgs = FirstArgs & { version: VersionType, back: () => Promise<void> }
@@ -265,34 +298,19 @@ async function SecondAction(args: SecondArgs) {
         content: 'あなたの質問はどの項目に該当しますか？',
         components: [row]
     })
-    const collector = thread.createMessageComponentCollector({
-        filter: (args) => (args.message.id === message.id)
-    });
-    const listener = async (interaction1: MessageComponentInteraction) => {
-        if (interaction1.user.id !== interaction.user.id || !interaction1.isSelectMenu()) {
-            await interaction1.deferUpdate()
-            return
-        }
-        collector.off('collect', listener)
-        const value = interaction1.values[0]
-        if (value === 'cancel') {
-            await thread.delete()
-        } else {
-            await message.delete()
-        }
-        if (value === 'back') {
-            await back()
-        } else {
-            await ThirdAction({
-                ...args,
-                qType: value as QuestionTypeValue,
-                interaction: interaction1,
-                back: () => SecondAction(args)
-            })
-        }
 
+    const ret = await MessageInteractionListener({
+        thread, message, back,
+        ignore: (i) => (i.user.id !== interaction.user.id || !i.isSelectMenu()),
+    })
+    if(ret){
+        await ThirdAction({
+            ...args,
+            qType: ret.value as QuestionTypeValue,
+            interaction: ret.newInteraction,
+            back: () => SecondAction(args)
+        })
     }
-    collector.on('collect', listener)
 }
 
 type ThirdArgs = SecondArgs & { qType: QuestionTypeValue }
@@ -300,7 +318,7 @@ type ThirdArgs = SecondArgs & { qType: QuestionTypeValue }
 async function ThirdAction(args: ThirdArgs) {
     // Todo: qTypeに応じた分岐
     const {qType} = args
-    if(qType === 'question'){
+    if((qType === 'question' || qType === 'other') && args.version === 'v2'){
         await QuestionAction1({
             ...args,
             back: () => ThirdAction(args)
@@ -411,7 +429,7 @@ async function QuestionAction2(args: ThirdArgs & {embed: MessageEmbedOptions}) {
         .addComponents(
             new MessageButton()
                 .setCustomId('cancel')
-                .setLabel('キャンセル')
+                .setLabel('キャンセル(スレッド削除)')
                 .setStyle('DANGER')
         )
     const message = await thread.send({
@@ -510,7 +528,7 @@ async function FifthAction(args: FifthArgs) {
         .addComponents(
             new MessageButton()
                 .setCustomId('cancel')
-                .setLabel('キャンセル')
+                .setLabel('キャンセル(スレッド削除)')
                 .setStyle('DANGER')
         )
     const message = await thread.send({
@@ -553,7 +571,8 @@ function capitalize(str: string) {
 async function SettingThread(args: SettingThreadArgs) {
     const title = `[${args.version}-${capitalize(args.qType)}]${args.title}`
     await args.thread.edit({
-        name: title
+        name: title,
+        autoArchiveDuration: 1440
     })
     await args.thread.send('スレッドの準備が整いました。\n質問の内容を入力してください。')
 }
