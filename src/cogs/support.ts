@@ -99,6 +99,56 @@ const FrequentlyAskedQuestionsV2: EmbedWithTitle[] = [
     }
 ]
 
+const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
+    {
+        'fields': [
+            {
+                'inline': true,
+                'name': '対処法',
+                'value': '役職の順序を入れ替えてください。' +
+                    '\nサーバー設定の役職タブで役職をドラッグアンドドロップで移動出来ます。' +
+                    '\niOSの場合は右上のボタンから編集ボタンをタップすると可能です。'
+            }
+        ],
+        'description': '理由:「役職パネルv2」という役職が 付与・解除 をしたい役職より上になっていない',
+        'title': '「役職の付与に失敗しました。BOTの一番上よりも高い役職をつけようとしてるかも？」と表示されたのですが……'
+    },
+    {
+        'fields': [
+            {
+                'inline': true,
+                'name': '対処法',
+                'value': 'サーバーの所有者 or 追加/削除しようとしている役職よりも上の役職を持つメンバーにコマンドを頼む'
+            }
+        ],
+        'description': '理由:あなたの一番上の役職以上の役職を追加/削除しようとしている。',
+        'title': 'XXXは、あなたの一番上の役職以上の役職でないので、追加/削除できません'
+    },
+    {
+        'description': '理由:Discord側のバグ。' +
+            '\nもし正常に役職を付けられているのであれば役職パネル側の問題ではありません。',
+        'title': 'なぜかパネルの役職がdeleted-roleになるんだけど！'
+    },
+    {
+        'fields': [
+            {
+                'inline': true,
+                'name': '役職パネルv3ドキュメント',
+                'value': 'https://rolepanelv3docmaster.gatsbyjs.io/'
+            }
+        ],
+        'title': 'ドキュメントを読みたい'
+    },
+    {
+        'description': 'パネルの選択がうまくできていない\n' +
+            'コマンドの前にパネルを選択しましょう\n' +
+            'https://rolepanelv3docmaster.gatsbyjs.io/context/select\n\n' +
+            'スマホ版の場合は、/rp select コマンドを使うことで選択できます。',
+        'title': '違うパネルが変更されてしまう'
+    }
+]
+
+
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === buttonName) {
         await interaction.deferUpdate()
@@ -232,7 +282,7 @@ async function _FirstAction(args: FirstArgs) {
     })
     const ret = await MessageInteractionListener({
         thread, message,
-        ignore:((i)=> i.user.id !== interaction.user.id || !interaction.isSelectMenu()),
+        ignore:((i)=> i.user.id !== interaction.user.id || !i.isSelectMenu()),
         back: () => FirstAction(args),
     })
     if (ret){
@@ -318,7 +368,7 @@ type ThirdArgs = SecondArgs & { qType: QuestionTypeValue }
 async function ThirdAction(args: ThirdArgs) {
     // Todo: qTypeに応じた分岐
     const {qType} = args
-    if((qType === 'question' || qType === 'other') && args.version === 'v2'){
+    if((qType === 'question' || qType === 'other')){
         await QuestionAction1({
             ...args,
             back: () => ThirdAction(args)
@@ -342,7 +392,7 @@ async function QuestionAction1(args: ThirdArgs) {
     if (version === 'v2') {
         questions = FrequentlyAskedQuestionsV2
     } else{
-        return
+        questions = FrequentlyAskedQuestionsV3
     }
     menu.addOptions(questions.map((e, i) => {
         return {
