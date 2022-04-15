@@ -110,7 +110,7 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
                     '\niOSの場合は右上のボタンから編集ボタンをタップすると可能です。'
             }
         ],
-        'description': '理由:「役職パネルv2」という役職が 付与・解除 をしたい役職より上になっていない',
+        'description': '理由:「役職パネルv3」という役職が 付与・解除 をしたい役職より上になっていない',
         'title': '「役職の付与に失敗しました。BOTの一番上よりも高い役職をつけようとしてるかも？」と表示されたのですが……'
     },
     {
@@ -145,6 +145,11 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
             'https://rolepanelv3docmaster.gatsbyjs.io/context/select\n\n' +
             'スマホ版の場合は、/rp select コマンドを使うことで選択できます。',
         'title': '違うパネルが変更されてしまう'
+    },
+    {
+        'description': '現在導入サーバーが100サーバーであるため、新規導入が不可能となっております。\n' +
+        '現在、申請中ですので、申請完了までお待ちください。\n',
+        'title': "BOTの導入をしたい"
     }
 ]
 
@@ -191,8 +196,10 @@ function MessageInteractionListener(option: {
             collector.off('collect', listener);
             if (value === 'cancel') {
                 thread.delete().then(() => resolve())
+                return
             }
-            else if (value === 'back') {
+            await newInteraction.deferUpdate();
+            if (value === 'back') {
                 back ? resolve(back()) : resolve()
                 return
             }
