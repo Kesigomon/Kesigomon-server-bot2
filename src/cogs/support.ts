@@ -525,7 +525,6 @@ async function QuestionAction2(args: ThirdArgs & {embed: MessageEmbedOptions}) {
             return
         }
         else if(value === 'NG'){
-            await message.delete()
             await ForthAction({
                 ...args,
                 interaction: interaction1,
