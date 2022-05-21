@@ -101,6 +101,23 @@ const FrequentlyAskedQuestionsV2: EmbedWithTitle[] = [
 
 const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
     {
+        'title': '基本的なコマンドの使い方を教えてほしい',
+        'description': 'こちらをお読みください。\n'
+            + 'https://rolepanelv3docmaster.gatsbyjs.io/quickstart'
+    },
+    {
+        'title': "BOTの導入をしたい",
+        'description': 'こちらからどうぞ。\n' +
+            'https://discord.com/api/oauth2/authorize?client_id=971523089550671953&permissions=268790848&scope=bot%20applications.commands',
+    },
+    {
+        'title': '違うパネルが変更されてしまう',
+        'description': 'パネルの選択がうまくできていない\n' +
+            'コマンドの前にパネルを選択しましょう\n' +
+            'https://rolepanelv3docmaster.gatsbyjs.io/context/select\n\n' +
+            'スマホ版の場合は、/rp select コマンドを使うことで選択できます。',
+    },
+    {
         'fields': [
             {
                 'inline': true,
@@ -125,6 +142,12 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
         'title': 'XXXは、あなたの一番上の役職以上の役職でないので、追加/削除できません'
     },
     {
+      'title': '権限不足です。以下の権限があるかもう一度確認してください。と表示された',
+      'description': 'サーバー設定から行えるロールの権限設定では必要な権限を付与できているように見えても、' +
+          'カテゴリやチャンネルの設定では許可されておらず権限不足になるというケースが良くあります。\n' +
+          'カテゴリやチャンネルの権限設定を確認してください。'
+    },
+    {
         'description': '理由:Discord側のバグ。' +
             '\nもし正常に役職を付けられているのであれば役職パネル側の問題ではありません。',
         'title': 'なぜかパネルの役職がdeleted-roleになるんだけど！'
@@ -139,18 +162,6 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
         ],
         'title': 'ドキュメントを読みたい'
     },
-    {
-        'description': 'パネルの選択がうまくできていない\n' +
-            'コマンドの前にパネルを選択しましょう\n' +
-            'https://rolepanelv3docmaster.gatsbyjs.io/context/select\n\n' +
-            'スマホ版の場合は、/rp select コマンドを使うことで選択できます。',
-        'title': '違うパネルが変更されてしまう'
-    },
-    {
-        'description': '現在導入サーバーが100サーバーであるため、新規導入が不可能となっております。\n' +
-        '現在、申請中ですので、申請完了までお待ちください。\n',
-        'title': "BOTの導入をしたい"
-    }
 ]
 
 
