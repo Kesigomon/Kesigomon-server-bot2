@@ -474,7 +474,7 @@ async function QuestionAction1(args: ThirdArgs) {
 
 
 async function QuestionAction2(args: ThirdArgs & {embed: MessageEmbedOptions}) {
-    const {version, thread, interaction, embed, back} = args
+    const {thread, interaction, embed, back} = args
     const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
@@ -547,6 +547,7 @@ async function QuestionAction2(args: ThirdArgs & {embed: MessageEmbedOptions}) {
 type ForthArgs = ThirdArgs & { traceback?: string }
 
 async function ForthAction(args: ForthArgs) {
+    // Todo: input モーダルを使う
     const {thread, interaction} = args
     const message = await thread.send({
         content: '質問の概要を書いたメッセージをこのスレッドに投稿してください(50字以内)\n' +
@@ -641,5 +642,13 @@ async function SettingThread(args: SettingThreadArgs) {
         name: title,
         autoArchiveDuration: 1440
     })
-    await args.thread.send('スレッドの準備が整いました。\n質問の内容を入力してください。')
+    await args.thread.send('' +
+        'スレッドの準備が整いました。\n' +
+        '質問の詳細を入力してください。\n' +
+        '\n' +
+        '1.質問の内容はできる限り具体的にお願いします。特に、エラーが出た場合はエラーのスクショか、**全て**をコピーペーストしてください。\n' +
+        '2.もし質問が解決したなら、解決した旨を書いてください。何も書かずにサーバーを退出するのはやめてください。\n' +
+        '3./rp debugでデバッグ情報を出せます。あなたのサーバーのパネルのあるチャンネルで実行してみてください。\n' +
+            'その情報のスクショがあると解決がスムーズになるかもしれません。'
+    )
 }
