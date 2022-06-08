@@ -9,6 +9,9 @@ process.on('unhandledRejection', ((reason) => {
     console.error(reason)
 }))
 
+process.on('SIGTERM', client.destroy);
+process.on('SIGINT', client.destroy);
+
 if(require.main === module){
     // client初期化後でないとコグロード不可
     require('./cogs');
