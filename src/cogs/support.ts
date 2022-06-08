@@ -55,8 +55,9 @@ function MessageInteractionListener(option: {
     message: Message,
     ignore: (interaction: MessageComponentInteraction) => boolean
     back?: () => Promise<void>,
+    defer?: boolean,
 }) {
-    const {thread, message, ignore, back} = option
+    const {thread, message, ignore, back, defer} = option
     const collector = thread.createMessageComponentCollector({
         filter: (args) => (args.message.id === message.id)
     });
@@ -82,7 +83,9 @@ function MessageInteractionListener(option: {
                 thread.delete().then(() => resolve())
                 return
             }
-            await newInteraction.deferUpdate();
+            if(defer ?? true){
+                await newInteraction.deferUpdate();
+            }
             if (value === 'back') {
                 back ? resolve(back()) : resolve()
                 return
@@ -236,6 +239,7 @@ async function SecondAction(args: SecondArgs) {
     const ret = await MessageInteractionListener({
         thread, message, back,
         ignore: (i) => (i.user.id !== interaction.user.id || !i.isSelectMenu()),
+        defer: false,
     })
     if (ret) {
         await ThirdAction({
