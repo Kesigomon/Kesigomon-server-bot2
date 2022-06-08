@@ -41,7 +41,6 @@ type EmbedWithTitle = (MessageEmbedOptions & { [P in 'title']: NonNullable<Messa
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === buttonName) {
-        await interaction.deferUpdate()
         await startSupport(interaction)
     }
 })
