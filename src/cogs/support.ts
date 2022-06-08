@@ -363,9 +363,11 @@ async function SettingThread(args: SettingThreadArgs) {
         name: title,
         autoArchiveDuration: 1440
     })
-    await args.thread.send(
-        '質問の詳細\n```\n' + args.description + '\n```'
-    )
+    if (args.description.length !== 0){
+        await args.thread.send(
+            '質問の詳細\n```\n' + args.description + '\n```'
+        )
+    }
     await args.thread.send('' +
         'スレッドの準備が整いました。\n' +
         '他に質問に関して書きたいことや、エラーなどのスクリーンショットがあれば、このスレッドに投稿してください。\n' +
