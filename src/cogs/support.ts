@@ -1,22 +1,23 @@
 import {client} from '../index'
 import {
-    ButtonInteraction,
+    BaseCommandInteraction,
+    ButtonInteraction, Interaction,
     Message,
     MessageActionRow,
     MessageButton,
     MessageComponentInteraction,
     MessageEmbedOptions,
     MessageSelectMenu,
-    MessageSelectOptionData,
-    TextChannel,
+    MessageSelectOptionData, Modal, ModalActionRowComponent,
+    TextChannel, TextInputComponent,
     ThreadChannel
 } from 'discord.js';
 import {supportChannelId, supportEnterChannelId} from '../constant';
-import {userMention} from '@discordjs/builders';
+import {channelMention} from '@discordjs/builders';
 
 const buttonName = 'supportStart'
 const cancelSelect: MessageSelectOptionData = {
-    label: 'キャンセル（スレッド削除）',
+    label: '解決した（スレッド削除）',
     value: 'cancel'
 }
 
@@ -38,133 +39,6 @@ type VersionType = 'v2' | 'v3'
 
 type EmbedWithTitle = (MessageEmbedOptions & { [P in 'title']: NonNullable<MessageEmbedOptions[P]> })
 
-const FrequentlyAskedQuestionsV2: EmbedWithTitle[] = [
-    {
-        'fields': [
-            {
-                'inline': true,
-                'name': '対処法',
-                'value': '役職の順序を入れ替えてください。' +
-                    '\nサーバー設定の役職タブで役職をドラッグアンドドロップで移動出来ます。' +
-                    '\niOSの場合は右上のボタンから編集ボタンをタップすると可能です。'
-            }
-        ],
-        'description': '理由:「役職パネルv2」という役職が 付与・解除 をしたい役職より上になっていない',
-        'title': '「役職の付与に失敗しました。BOTの一番上よりも高い役職をつけようとしてるかも？」と表示されたのですが……'
-    },
-    {
-        'fields': [
-            {
-                'inline': true,
-                'name': '対処法',
-                'value': 'サーバーの所有者 or 追加/削除しようとしている役職よりも上の役職を持つメンバーにコマンドを頼む'
-            }
-        ],
-        'description': '理由:あなたの一番上の役職以上の役職を追加/削除しようとしている。',
-        'title': 'XXXは、あなたの一番上の役職以上の役職でないので、追加/削除できません'
-    },
-    {
-        'fields': [
-            {
-                'inline': true,
-                'name': 'コマンド',
-                'value': '```!rp2 add role -t tag```\n' +
-                    'のように、-tオプションでタグを指定できる。\n' +
-                    '```!rp2 add 役職 -t タグ```\n' +
-                    '既存のパネルとは違うタグを指定した場合、新しくパネルが作られます。'
-            }
-        ],
-        'description': '対処法:タグを別なものとすれば、新しいパネルが作成される',
-        'title': 'パネルを分けたい　複数作りたい'
-    },
-    {
-        'description': '理由:Discord側のバグ。' +
-            '\nもし正常に役職を付けられているのであれば役職パネル側の問題ではありません。',
-        'title': 'なぜかパネルの役職がdeleted-roleになるんだけど！'
-    },
-    {
-        'fields': [
-            {
-                'inline': true,
-                'name': '役職パネルv2ドキュメント',
-                'value': 'https://kesigomon.hatenablog.jp/entry/2020/05/19/203644'
-            },
-            {
-                'inline': true,
-                'name': '役職パネル よくある質問',
-                'value': 'https://kesigomon.hatenablog.jp/entry/2020/04/25/005421'
-            }
-        ],
-        'title': 'ドキュメントを読みたい'
-    }
-]
-
-const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
-    {
-        'title': '基本的なコマンドの使い方を教えてほしい',
-        'description': 'こちらをお読みください。\n'
-            + 'https://rolepanelv3docmaster.gatsbyjs.io/quickstart'
-    },
-    {
-        'title': "BOTの導入をしたい",
-        'description': 'こちらからどうぞ。\n' +
-            'https://discord.com/api/oauth2/authorize?client_id=971523089550671953&permissions=268790848&scope=bot%20applications.commands',
-    },
-    {
-        'title': '違うパネルが変更されてしまう',
-        'description': 'パネルの選択がうまくできていない\n' +
-            'コマンドの前にパネルを選択しましょう\n' +
-            'https://rolepanelv3docmaster.gatsbyjs.io/context/select\n\n' +
-            'スマホ版の場合は、/rp select コマンドを使うことで選択できます。',
-    },
-    {
-        'fields': [
-            {
-                'inline': true,
-                'name': '対処法',
-                'value': '役職の順序を入れ替えてください。' +
-                    '\nサーバー設定の役職タブで役職をドラッグアンドドロップで移動出来ます。' +
-                    '\niOSの場合は右上のボタンから編集ボタンをタップすると可能です。'
-            }
-        ],
-        'description': '理由:「役職パネルv3」という役職が 付与・解除 をしたい役職より上になっていない',
-        'title': '「役職の付与に失敗しました。BOTの一番上よりも高い役職をつけようとしてるかも？」と表示されたのですが……'
-    },
-    {
-        'fields': [
-            {
-                'inline': true,
-                'name': '対処法',
-                'value': 'サーバーの所有者 or 追加/削除しようとしている役職よりも上の役職を持つメンバーにコマンドを頼む'
-            }
-        ],
-        'description': '理由:あなたの一番上の役職以上の役職を追加/削除しようとしている。',
-        'title': 'XXXは、あなたの一番上の役職以上の役職でないので、追加/削除できません'
-    },
-    {
-      'title': '権限不足です。以下の権限があるかもう一度確認してください。と表示された',
-      'description': 'サーバー設定から行えるロールの権限設定では必要な権限を付与できているように見えても、' +
-          'カテゴリやチャンネルの設定では許可されておらず権限不足になるというケースが良くあります。\n' +
-          'カテゴリやチャンネルの権限設定を確認してください。'
-    },
-    {
-        'description': '理由:Discord側のバグ。' +
-            '\nもし正常に役職を付けられているのであれば役職パネル側の問題ではありません。',
-        'title': 'なぜかパネルの役職がdeleted-roleになるんだけど！'
-    },
-    {
-        'fields': [
-            {
-                'inline': true,
-                'name': '役職パネルv3ドキュメント',
-                'value': 'https://rolepanelv3docmaster.gatsbyjs.io/'
-            }
-        ],
-        'title': 'ドキュメントを読みたい'
-    },
-]
-
-
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton() && interaction.customId === buttonName) {
         await interaction.deferUpdate()
@@ -182,25 +56,25 @@ function MessageInteractionListener(option: {
     message: Message,
     ignore: (interaction: MessageComponentInteraction) => boolean
     back?: () => Promise<void>,
-}){
+}) {
     const {thread, message, ignore, back} = option
     const collector = thread.createMessageComponentCollector({
         filter: (args) => (args.message.id === message.id)
     });
-    return new Promise<void | {newInteraction: MessageComponentInteraction, value: string}>((resolve, reject) => {
+    return new Promise<void | { newInteraction: MessageComponentInteraction, value: string }>((resolve, reject) => {
         const listener = async (newInteraction: MessageComponentInteraction) => {
-            if(ignore(newInteraction)){
+            if (ignore(newInteraction)) {
                 await newInteraction.deferUpdate()
                 return
             }
             const value = (() => {
-                if(newInteraction.isSelectMenu()){
+                if (newInteraction.isSelectMenu()) {
                     return newInteraction.values[0]
-                } else if (newInteraction.isButton()){
+                } else if (newInteraction.isButton()) {
                     return newInteraction.customId
                 }
             })()
-            if(!value){
+            if (!value) {
                 await newInteraction.deferUpdate()
                 return
             }
@@ -213,8 +87,7 @@ function MessageInteractionListener(option: {
             if (value === 'back') {
                 back ? resolve(back()) : resolve()
                 return
-            }
-            else{
+            } else {
                 resolve({newInteraction, value})
             }
         }
@@ -252,9 +125,10 @@ async function startSupport(interaction: ButtonInteraction) {
         name: '受付中',
         autoArchiveDuration: 60
     });
-    await thread.send({
-        content: userMention(interaction.user.id) + '\nスレッドを作成しました。'
-    })
+    await interaction.reply({
+        content: channelMention(thread.id) + '\nスレッドを作成しました。クリックして確認してください。',
+        ephemeral: true,
+    });
     try {
         await FirstAction({interaction: interaction, thread})
     } catch (e) {
@@ -267,13 +141,6 @@ type FirstArgs = { interaction: MessageComponentInteraction, thread: ThreadChann
 
 
 async function FirstAction(args: FirstArgs) {
-    await _FirstAction({
-        ...args
-    })
-}
-
-// Todo: v3ロールアウト次第こっちに切り替える
-async function _FirstAction(args: FirstArgs) {
     const {thread, interaction} = args
     const row = new MessageActionRow()
         .addComponents(
@@ -300,15 +167,15 @@ async function _FirstAction(args: FirstArgs) {
     })
     const ret = await MessageInteractionListener({
         thread, message,
-        ignore:((i)=> i.user.id !== interaction.user.id || !i.isSelectMenu()),
+        ignore: ((i) => i.user.id !== interaction.user.id || !i.isSelectMenu()),
         back: () => FirstAction(args),
     })
-    if (ret){
+    if (ret) {
         await SecondAction({
             ...args,
             interaction: ret.newInteraction,
             version: ret.value as VersionType,
-            back: () => _FirstAction(args)
+            back: () => FirstAction(args)
         })
     }
 }
@@ -371,7 +238,7 @@ async function SecondAction(args: SecondArgs) {
         thread, message, back,
         ignore: (i) => (i.user.id !== interaction.user.id || !i.isSelectMenu()),
     })
-    if(ret){
+    if (ret) {
         await ThirdAction({
             ...args,
             qType: ret.value as QuestionTypeValue,
@@ -386,161 +253,10 @@ type ThirdArgs = SecondArgs & { qType: QuestionTypeValue }
 async function ThirdAction(args: ThirdArgs) {
     // Todo: qTypeに応じた分岐
     const {qType} = args
-    if((qType === 'question' || qType === 'other')){
-        await QuestionAction1({
-            ...args,
-            back: () => ThirdAction(args)
-        })
-    }
-    else{
-        await ForthAction({
-            ...args,
-            back: () => ThirdAction(args)
-        })
-    }
-}
-
-async function QuestionAction1(args: ThirdArgs) {
-    const {version, thread, interaction, back} = args
-    const menu = new MessageSelectMenu()
-        .setCustomId('supportQuestionAction1')
-        .setMinValues(1)
-        .setMaxValues(1)
-    let questions: EmbedWithTitle[]
-    if (version === 'v2') {
-        questions = FrequentlyAskedQuestionsV2
-    } else{
-        questions = FrequentlyAskedQuestionsV3
-    }
-    menu.addOptions(questions.map((e, i) => {
-        return {
-            label: e.title,
-            description: e.title,
-            value: i.toString(),
-        }
-    }))
-    menu.addOptions([
-        {
-            label: '該当しない',
-            value: '-1'
-        },
-        backSelect,
-        cancelSelect
-    ])
-    const row = new MessageActionRow()
-        .addComponents(menu)
-    const message = await thread.send({
-        content: 'あなたの質問は以下に該当しませんか？',
-        components: [row]
+    await ForthAction({
+        ...args,
+        back: () => ThirdAction(args)
     })
-    const collector = thread.createMessageComponentCollector({
-        filter: (args) => (args.message.id === message.id)
-    });
-    const listener = async (interaction1: MessageComponentInteraction) => {
-        if (interaction1.user.id !== interaction.user.id || !interaction1.isSelectMenu()) {
-            await interaction1.deferUpdate()
-            return
-        }
-        collector.off('collect', listener)
-        const value = interaction1.values[0]
-        if (value === 'cancel') {
-            await thread.delete()
-            return
-        } else {
-            await message.delete()
-        }
-        if (value === 'back') {
-            await back()
-        } else {
-            const index = parseInt(value)
-            if(index < 0){
-                await ForthAction({
-                    ...args,
-                    interaction: interaction1,
-                    back: () => QuestionAction1(args)
-                })
-                return
-            }
-            const embed = questions[index]
-            await QuestionAction2({
-                ...args,
-                embed: embed,
-                back: () => QuestionAction1(args)
-            })
-        }
-    }
-    collector.on('collect', listener)
-}
-
-
-async function QuestionAction2(args: ThirdArgs & {embed: MessageEmbedOptions}) {
-    const {thread, interaction, embed, back} = args
-    const row = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId('OK')
-                .setLabel('解決した')
-                .setStyle('SUCCESS')
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId('NG')
-                .setLabel('解決しなかった')
-                .setStyle('PRIMARY')
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId('back')
-                .setLabel('戻る')
-                .setStyle('SECONDARY')
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId('cancel')
-                .setLabel('キャンセル(スレッド削除)')
-                .setStyle('DANGER')
-        )
-    const message = await thread.send({
-        content: '以下の内容で解決しましたか？',
-        embeds: [embed],
-        components: [row]
-    })
-    const collector = thread.createMessageComponentCollector({
-        filter: (args) => (args.message.id === message.id)
-    });
-    const listener = async (interaction1: MessageComponentInteraction) => {
-        if (interaction1.user.id !== interaction.user.id || !interaction1.isButton()) {
-            await interaction1.deferUpdate()
-            return
-        }
-        collector.off('collect', listener)
-        const value = interaction1.customId
-        if (value === 'cancel') {
-            await thread.delete()
-            return
-        }
-        if (value === 'back') {
-            await message.delete()
-            await back()
-            return
-        }
-        else if(value === 'NG'){
-            await ForthAction({
-                ...args,
-                interaction: interaction1,
-                back: () => QuestionAction2(args)
-            })
-        }
-        else{
-            await interaction1.deferUpdate()
-            await thread.edit({
-                locked: true,
-                archived: true,
-                name: 'よくある質問で解決'
-            })
-        }
-    }
-    collector.on('collect', listener)
 }
 
 
@@ -548,86 +264,88 @@ type ForthArgs = ThirdArgs & { traceback?: string }
 
 async function ForthAction(args: ForthArgs) {
     // Todo: input モーダルを使う
+    // Todo: モーダル再表示ボタンを作る
     const {thread, interaction} = args
-    const message = await thread.send({
-        content: '質問の概要を書いたメッセージをこのスレッドに投稿してください(50字以内)\n' +
-            '※スレッドのタイトルになります'
-    })
-    const collector = thread.createMessageCollector({
-        filter: (m) => (
-            interaction.user.id === m.author.id
-            && m.channel.id === thread.id
-        )
-    })
-    const handler = async (response: Message) => {
-        if (response.content.length > 50) {
-            await thread.send('50文字以内で入力してください')
-            return
-        }
-        collector.off('collect', handler)
-        await message.delete()
-        await FifthAction(
-            {
-                ...args,
-                title: response.content,
-            }
-        )
-    }
-    collector.on('collect', handler)
-}
-
-type FifthArgs = ForthArgs & { title: string }
-
-async function FifthAction(args: FifthArgs) {
-    const {thread, interaction, back} = args
+    const showModal = async (interaction: BaseCommandInteraction | MessageComponentInteraction) => {
+        const modal = new Modal()
+            .setCustomId(thread.id)
+            .setTitle('質問入力フォーム');
+        const components = [
+            new TextInputComponent()
+                .setRequired(true)
+                .setCustomId('title')
+                .setStyle('SHORT')
+                .setMinLength(1)
+                .setMaxLength(50)
+                .setLabel('質問の概要を書いてください'),
+            new TextInputComponent()
+                .setRequired(false)
+                .setCustomId('description')
+                .setStyle('PARAGRAPH')
+                .setLabel('質問の詳細を書いてください'),
+        ]
+        const rows = components.map((component) =>
+            new MessageActionRow<ModalActionRowComponent>()
+                .addComponents(component)
+        );
+        modal.addComponents(...rows);
+        await interaction.showModal(modal)
+    };
+    await showModal(interaction);
     const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
-                .setCustomId('OK')
-                .setLabel('OK')
+                .setCustomId('reshow')
+                .setLabel('再表示')
                 .setStyle('PRIMARY')
         )
-        .addComponents(
-            new MessageButton()
-                .setCustomId('back')
-                .setLabel('戻る')
-                .setStyle('SECONDARY')
-        )
-        .addComponents(
-            new MessageButton()
-                .setCustomId('cancel')
-                .setLabel('キャンセル(スレッド削除)')
-                .setStyle('DANGER')
-        )
-    const message = await thread.send({
-        content: 'この内容でよろしいですか？',
+    const reshowMessage = await thread.send({
+        content: 'もし入力ボックスを閉じてしまったのなら、以下のボタンから再表示できます。',
         components: [row]
-    })
-    const collector = thread.createMessageComponentCollector({
-        filter: (args) => (args.message.id === message.id)
     });
-    const listener = async (interaction1: MessageComponentInteraction) => {
-        if (interaction1.user.id !== interaction.user.id || !interaction1.isButton()) {
-            await interaction1.deferUpdate()
+    const handler = async (newInteraction: Interaction) => {
+        if (newInteraction.isButton()) {
+            if (
+                newInteraction.customId === 'reshow'
+                && newInteraction.message.id === reshowMessage.id
+                && newInteraction.channelId === thread.id
+            ) {
+                if (interaction.user.id === newInteraction.user.id) {
+                    await showModal(newInteraction);
+                } else {
+                    await newInteraction.reply({
+                        content: `あなたには使えません。新しくスレッドを作成して下さい。
+                        \n${channelMention(supportEnterChannelId)}`,
+                        ephemeral: true
+                    })
+                }
+            }
+            return;
+        } else if (
+            !newInteraction.isModalSubmit() || newInteraction.customId !== interaction.channelId
+        ) {
             return
         }
-        collector.off('collect', listener)
-        const value = interaction1.customId
-        if (value === 'cancel') {
-            await thread.delete()
-        } else {
-            await message.delete()
+        client.off('interactionCreate', handler);
+        try{
+            await reshowMessage.delete();
         }
-        if (value === 'back') {
-            await back()
-        } else if (value === 'OK') {
-            await SettingThread(args)
-        }
+        catch {
 
+        }
+        await newInteraction.deferUpdate();
+        const title = newInteraction.fields.getTextInputValue("title");
+        const description = newInteraction.fields.getTextInputValue("description");
+        await SettingThread({
+            ...args,
+            title, description
+        })
     }
-    collector.on('collect', listener)
-
+    client.on('interactionCreate', handler);
 }
+
+type FifthArgs = ForthArgs & { title: string, description: string }
+
 
 type SettingThreadArgs = Readonly<FifthArgs>
 
@@ -642,13 +360,15 @@ async function SettingThread(args: SettingThreadArgs) {
         name: title,
         autoArchiveDuration: 1440
     })
+    await args.thread.send(
+        '質問の詳細\n```\n' + args.description + '\n```'
+    )
     await args.thread.send('' +
         'スレッドの準備が整いました。\n' +
-        '質問の詳細を入力してください。\n' +
-        '\n' +
-        '1.質問の内容はできる限り具体的にお願いします。特に、エラーが出た場合はエラーのスクショか、**全て**をコピーペーストしてください。\n' +
-        '2.もし質問が解決したなら、解決した旨を書いてください。何も書かずにサーバーを退出するのはやめてください。\n' +
-        '3./rp debugでデバッグ情報を出せます。あなたのサーバーのパネルのあるチャンネルで実行してみてください。\n' +
-            'その情報のスクショがあると解決がスムーズになるかもしれません。'
+        '他に質問に関して書きたいことや、エラーなどのスクリーンショットがあれば、このスレッドに投稿してください。\n' +
+        'もし質問が解決したなら、解決した旨を書いてください。何も書かずにサーバーを退出するのはやめてください。\n' +
+        '/rp debugでデバッグ情報を出せます。あなたのサーバーのパネルのあるチャンネルで実行してみてください。\n' +
+        'その情報のスクショがあると解決がスムーズになるかもしれません。\n\n' +
+        'それでは、回答をお待ちください。'
     )
 }

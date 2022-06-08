@@ -9,9 +9,11 @@ process.on('unhandledRejection', ((reason) => {
     console.error(reason)
 }))
 
-// client初期化後でないとコグロード不可
-import './cogs'
+if(require.main === module){
+    // client初期化後でないとコグロード不可
+    require('./cogs');
+    (async () => {
+        await client.login(token)
+    })()
+}
 
-(async () => {
-    await client.login(token)
-})()
