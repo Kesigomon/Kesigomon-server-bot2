@@ -13,7 +13,7 @@ import {
     ThreadChannel
 } from 'discord.js';
 import {supportChannelId, supportEnterChannelId} from '../constant';
-import {channelMention} from '@discordjs/builders';
+import {channelMention, userMention} from '@discordjs/builders';
 
 const buttonName = 'supportStart'
 const cancelSelect: MessageSelectOptionData = {
@@ -164,7 +164,7 @@ async function FirstAction(args: FirstArgs) {
         )
 
     const message = await thread.send({
-        content: 'あなたが質問しようとしているのはv2, v3どちらについての質問ですか？',
+        content:  userMention(interaction.user.id) + '\nあなたが質問しようとしているのはv2, v3どちらについての質問ですか？',
         components: [row]
     })
     const ret = await MessageInteractionListener({
@@ -266,8 +266,6 @@ async function ThirdAction(args: ThirdArgs) {
 type ForthArgs = ThirdArgs & { traceback?: string }
 
 async function ForthAction(args: ForthArgs) {
-    // Todo: input モーダルを使う
-    // Todo: モーダル再表示ボタンを作る
     const {thread, interaction} = args
     const showModal = async (interaction: BaseCommandInteraction | MessageComponentInteraction) => {
         const modal = new Modal()
