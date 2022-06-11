@@ -135,7 +135,10 @@ async function startSupport(interaction: ButtonInteraction) {
         await FirstAction({interaction: interaction, thread})
     } catch (e) {
         console.trace(e)
-        await thread.delete()
+        await thread.send(
+            'ごめんなさい、問題が発生しました... \n'
+            + 'このサーバーの管理者がきっと直してくれます。多分。'
+        )
     }
 }
 
