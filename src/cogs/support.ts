@@ -123,13 +123,15 @@ async function startSupport(interaction: ButtonInteraction) {
     if (!(channel instanceof TextChannel)) {
         return
     }
+    await interaction.deferReply({
+        ephemeral: true
+    });
     const thread = await channel.threads.create({
         name: '受付中',
         autoArchiveDuration: 60
     });
-    await interaction.reply({
-        content: channelMention(thread.id) + '\nスレッドを作成しました。クリックして確認してください。',
-        ephemeral: true,
+    await interaction.editReply({
+        content: channelMention(thread.id) + '\nスレッドを作成しました。クリックして確認してください。'
     });
     try {
         await FirstAction({interaction: interaction, thread})
