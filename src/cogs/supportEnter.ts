@@ -118,12 +118,32 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
         'title': '権限不足です。以下の権限があるかもう一度確認してください。と表示された',
         'description': 'サーバー設定から行えるロールの権限設定では必要な権限を付与できているように見えても、' +
             'カテゴリやチャンネルの設定では許可されておらず権限不足になるというケースが良くあります。\n' +
-            'カテゴリやチャンネルの権限設定を確認してください。'
+            'カテゴリやチャンネルの権限設定を確認してください。\n' +
+            '`/rp debug` コマンドもパネルのあるチャンネルで試してみてみるのも良いでしょう。\n' +
+            'チャンネル権限情報のどれかが:x:であった場合、その権限が不足していることを表します。'
     },
     {
         'description': '理由:Discord側のバグ。' +
             '\nもし正常に役職を付けられているのであれば役職パネル側の問題ではありません。',
         'title': 'なぜかパネルの役職がdeleted-roleになるんだけど！'
+    },
+    {
+        title: '(スラッシュコマンドの時)役職を作成したのに選択できない・「無効なロールです」と出た',
+        description: '理由: 役職がない or Discordのバグ\n' +
+            '1. Discordを再起動してみてください。\n' +
+            '2. 役職が本当に作成されているか、サーバー設定の役職から確認してください。\n' +
+            '3. もしPCをお持ちであれば、PC版で試してみてください。',
+    },
+    {
+        title: '/を押してもコマンド一覧が出ない',
+        description: '1. Discordは最新のバージョンですか？もし最新でなければ、最新バージョンにアップデートしてください。\n' +
+            '2. __**あなた**__に「アプリコマンドを使う」の権限がありますか？' +
+            'もしなければ、サーバー管理者に連絡して、その権限を貰うようにして下さい。\n' +
+            'サーバー設定から行えるロールの権限設定では必要な権限を付与できているように見えても、' +
+            'カテゴリやチャンネルの設定では許可されておらず権限不足になるというケースが良くあります。\n' +
+            'カテゴリやチャンネルの権限設定の確認も忘れずに行ってもらってください。\n' +
+            '3. 「ユーザー設定」→「テキスト・画像」→「スラッシュコマンドを使い、絵文字、メンション、マークダウン構文を入力時にプレビューする」' +
+            'がオフになっていませんか？オンにしないとスラッシュコマンドが使えないので、オンにしてください。'
     },
     {
         'fields': [
@@ -156,8 +176,11 @@ const addComponentToRows = <T extends MessageActionRowComponent | ModalActionRow
     }
 }
 
-const regenEnterMessage = async (client: Client) => {
-    const channel = await client.channels.fetch('704243445778087978');
+
+export const regenEnterMessage = async (client: Client) => {
+    const channelId = '704243445778087978'
+    // const channelId = '893822808113709107'
+    const channel = await client.channels.fetch(channelId, {allowUnknownGuild: true});
     if (!(channel instanceof TextChannel)) {
         return;
     }
@@ -190,10 +213,6 @@ const regenEnterMessage = async (client: Client) => {
         });
     }
 }
-
-client.on('ready', async() => {
-    await regenEnterMessage(client);
-});
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
