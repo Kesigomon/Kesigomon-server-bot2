@@ -48,8 +48,8 @@ client.on('guildMemberUpdate', async (before, after) => {
                 }
                 const embed = new MessageEmbed({
                     description:
-                        `${memberNicknameMention(after.id)}がルールを読みました。\n
-                        ${memberNicknameMention(guild.ownerId)}がオンラインになると認証されます。\n
+                        `${memberNicknameMention(after.id)}がルールを読みました。
+                        ${memberNicknameMention(guild.ownerId)}がオンラインになると認証されます。
                         オンラインになるまでお待ちください。`
                 });
                 await channel.send({embeds: [embed]})
