@@ -10,14 +10,20 @@ const isAuthorizeable = (member: GuildMember) => {
     return !member.pending && member.roles.cache.size === 1
 };
 
-const authorize = async (member: GuildMember) => {
-    await member.roles.add(normalUserRoleId);
-    const channel = await member.guild.channels.fetch(joinLogChannelId)
+const authorize = async (members: Array<GuildMember>) => {
+    if (members.length === 0){
+        return
+    }
+    await Promise.all(members.map((m) => m.roles.add(normalUserRoleId)));
+    const channel = await members[0].guild.channels.fetch(joinLogChannelId)
     if (!(channel instanceof TextChannel)){
         return
     }
     const embed = new MessageEmbed();
-    embed.setDescription(`${memberNicknameMention(member.id)}さんの認証が完了しました。`)
+    const mentions = members
+        .map((m) => `${memberNicknameMention(m.id)}さん`)
+        .join();
+    embed.setDescription(`${mentions}さんの認証が完了しました。`)
     embed.setColor('GREEN');
     await channel.send({embeds: [embed]})
 };
@@ -30,11 +36,11 @@ client.on('guildMemberUpdate', async(before, after) => {
             && before.presence?.status !== after.presence?.status
             && after.presence?.status === 'online'
         ){
-            await Promise.all(after.guild.members.cache.filter(isAuthorizeable).map(authorize))
+            await authorize(Array.from(after.guild.members.cache.filter(isAuthorizeable).values()))
         }
         else if (!isOwner && isAuthorizeable(after) && before.pending){
             if ((await after.guild.fetchOwner()).presence?.status === 'online'){
-                await authorize(after);
+                await authorize([after]);
             }
             else{
                 // Todo: 仮認証完了
