@@ -32,7 +32,7 @@ const authorize = async (members: Array<GuildMember>) => {
 client.on('guildMemberUpdate', async (before, after) => {
     const guild = after.guild;
     await lock.acquire(AUTHORIZE, async () => {
-       if (!isAuthorizeable(after) || before.pending) {
+       if (!isAuthorizeable(after) || !before.pending) {
            return
        }
         if ((await guild.fetchOwner()).presence?.status === 'online') {
