@@ -22,8 +22,8 @@ const authorize = async (members: Array<GuildMember>) => {
     const embed = new MessageEmbed();
     const mentions = members
         .map((m) => `${memberNicknameMention(m.id)}さん`)
-        .join();
-    embed.setDescription(`${mentions}さんの認証が完了しました。`)
+        .join('、');
+    embed.setDescription(`${mentions}の認証が完了しました。`)
     embed.setColor('GREEN');
     await channel.send({embeds: [embed]})
 };
