@@ -12,7 +12,7 @@ import {
     TextChannel, TextInputComponent,
     ThreadChannel
 } from 'discord.js';
-import {supportChannelId, supportEnterChannelId} from '../constant';
+import {normalUserRoleId, supportChannelId, supportEnterChannelId} from '../constant';
 import {channelMention, userMention} from '@discordjs/builders';
 
 const buttonName = 'supportStart'
@@ -40,8 +40,19 @@ type VersionType = 'v2' | 'v3'
 type EmbedWithTitle = (MessageEmbedOptions & { [P in 'title']: NonNullable<MessageEmbedOptions[P]> })
 
 client.on('interactionCreate', async (interaction) => {
-    if (interaction.isButton() && interaction.customId === buttonName) {
-        await startSupport(interaction)
+    if (!interaction.isButton() || !interaction.inCachedGuild() || interaction.customId !== buttonName) {
+        return;
+    }
+    if (interaction.member.roles.cache.has(normalUserRoleId)){
+       await startSupport(interaction)
+    }
+    else{
+        await interaction.reply({
+            content:
+                'まだ認証が済んでいません。認証完了までお待ちください。\n' +
+                '認証完了後にもう一度お試しください。',
+            ephemeral: true
+        })
     }
 })
 
