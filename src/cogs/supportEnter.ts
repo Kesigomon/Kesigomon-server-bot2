@@ -84,7 +84,7 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
             'https://discord.com/api/oauth2/authorize?client_id=971523089550671953&permissions=268790848&scope=bot%20applications.commands',
     },
     {
-        'title': '違うパネルが変更されてしまう',
+        'title': '違うパネルが変更されてしまう・パネルが選択されていません。と表示された',
         'description': 'パネルの選択がうまくできていない\n' +
             'コマンドの前にパネルを選択しましょう\n' +
             'https://rolepanelv3docmaster.gatsbyjs.io/context/select\n\n' +
@@ -212,6 +212,10 @@ export const regenEnterMessage = async (client: Client) => {
             components: rows
         });
     }
+    await channel.send(
+        '上にv2, v3のよくある質問が書かれています。\n' +
+        'リアクションを押すと、質問に対する回答が表示されます'
+    )
 }
 
 client.on('interactionCreate', async (interaction) => {
