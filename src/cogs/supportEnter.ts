@@ -212,6 +212,10 @@ export const regenEnterMessage = async (client: Client) => {
             components: rows
         });
     }
+    await channel.send(
+        '上にv2, v3のよくある質問が書かれています。\n' +
+        'リアクションを押すと、質問に対する回答が表示されます'
+    )
 }
 
 client.on('interactionCreate', async (interaction) => {
