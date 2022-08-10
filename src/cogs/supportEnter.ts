@@ -84,11 +84,11 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
             'https://discord.com/api/oauth2/authorize?client_id=971523089550671953&permissions=268790848&scope=bot%20applications.commands',
     },
     {
-        'title': '違うパネルが変更されてしまう',
-        'description': 'パネルの選択がうまくできていない\n' +
+        'title': '違うパネルが変更されてしまう・パネルが選択されていません。と表示された',
+        'description': 'パネルの選択ができていない\n' +
             'コマンドの前にパネルを選択しましょう\n' +
             'https://rolepanelv3docmaster.gatsbyjs.io/context/select\n\n' +
-            'スマホ版の場合は、/rp select コマンドを使うことで選択できます。',
+            'Android版の場合は、/rp select コマンドを使うことで選択できます。',
     },
     {
         'fields': [
