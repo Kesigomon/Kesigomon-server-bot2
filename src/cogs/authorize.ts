@@ -1,8 +1,17 @@
 import AsyncLock from 'async-lock';
-import {GuildMember, MessageEmbed, TextChannel} from 'discord.js';
+import {
+    GuildMember,
+    InteractionResponseFields,
+    MessageActionRow,
+    MessageButton,
+    MessageEmbed, MessageEmbedOptions,
+    TextChannel
+} from 'discord.js';
 import {client} from '../index';
 import {joinLogChannelId, normalUserRoleId} from '../constant';
 import {memberNicknameMention} from '@discordjs/builders';
+import {shuffle} from "../lib";
+import {MessageButtonStyles} from "discord.js/typings/enums";
 
 const lock = new AsyncLock();
 const AUTHORIZE = 'authorize';
@@ -71,3 +80,68 @@ client.on('presenceUpdate', async (before, after)=>{
         await authorize(Array.from(guild.members.cache.filter(isAuthorizeable).values()));
     })
 })
+
+type qustionsType = {
+    question: string,
+    selects: string[],
+    description: string
+}
+
+// Todo: 説明を追記する
+const questions: qustionsType[] = [
+    {
+        question: "あなたは役職パネルの質問があります。\nさて、まず何をするべきですか？",
+        selects: [
+            "新役職パネル質問室入口を見る",
+            "ローカルルームに質問を書く",
+            "サーバーオーナーにDMを送る",
+        ],
+        description: "実は、よくある質問への回答は認証前でも確認することができます。\n" +
+            "もちろん、このクイズを解いているときでも。\n" +
+            "「解決できませんでした」の選択肢のみ認証後にしか使えません。"
+    },
+    {
+        question: "このサーバーでは、他のサーバーの宣伝をすることができますか？",
+        selects: [
+            "アクティブユーザーになればできる。",
+            "できない。",
+            "認証されればできる。",
+        ],
+        description: ""
+    }
+]
+const appearQuiz = (
+    interaction: InteractionResponseFields<'cached'>,
+    embed: MessageEmbed,
+    selects: string[],
+    answer?: boolean[],
+) => {
+    if (!answer){
+        answer = new Array(selects.length)
+            .fill(true, 0, 1)
+            .fill(false, 1);
+    }
+    const rows: MessageActionRow[] = [];
+    shuffle(selects);
+    for (const [i, s] of selects.entries()) {
+        let row;
+        if(rows.length === 0 || rows[rows.length - 1].components.length >= 5){
+            row = new MessageActionRow()
+            rows.push(row)
+        }
+        else{
+            row = rows[rows.length - 1]
+        }
+        const button = new MessageButton()
+        button.setStyle(MessageButtonStyles.PRIMARY)
+        button.setLabel(s)
+        button.setCustomId("AuthorizeQuestion" + (answer.at(i) ?? false ? "Correct" : "Wrong"))
+        row.addComponents(button)
+    }
+    return interaction.reply({
+        components: rows,
+        embeds: [embed],
+        ephemeral: true,
+        fetchReply: true
+    })
+}
