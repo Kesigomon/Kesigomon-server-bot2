@@ -56,6 +56,13 @@ const FrequentlyAskedQuestionsV2: EmbedWithTitle[] = [
         'title': 'なぜかパネルの役職がdeleted-roleになるんだけど！'
     },
     {
+        'title': 'コマンドが反応しない',
+        'description': '理由:Discordの仕様変更によるもの。\n' +
+            '9/1からBOTがメッセージの内容を取得することができなくなったため、コマンドに反応しなくなりました。\n' +
+            '以降もパネルの追加・変更を行いたい場合は、役職パネルv3をお使いください。\n\n' +
+            'リアクションを押して役職を付与・解除する機能は、今後もお使い頂けます。'
+    },
+    {
         'fields': [
             {
                 'inline': true,
