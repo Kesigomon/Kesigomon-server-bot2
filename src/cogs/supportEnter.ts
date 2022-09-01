@@ -246,7 +246,7 @@ client.on('interactionCreate', async (interaction) => {
         })
         const channel = client.channels.resolve(supportLogChannelId);
         if (channel instanceof TextChannel){
-            const content = `${userMention(interaction.user.id)}が${match[1]}の${embed.title}を見ました`
+            const content = `${userMention(interaction.user.id)}が${match[1]}の\`${embed.title}\`を見ました`
             await channel.send({
                 content: content,
                 allowedMentions: {
@@ -257,6 +257,5 @@ client.on('interactionCreate', async (interaction) => {
                 }
             })
         }
-
     }
 })
