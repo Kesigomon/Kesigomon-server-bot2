@@ -8,6 +8,8 @@ import {
     TextChannel
 } from 'discord.js';
 import {client} from '../index';
+import {supportLogChannelId} from '../constant';
+import {userMention} from '@discordjs/builders';
 
 type EmbedWithTitle = (MessageEmbedOptions & { [P in 'title']: NonNullable<MessageEmbedOptions[P]> })
 
@@ -236,11 +238,23 @@ client.on('interactionCreate', async (interaction) => {
             await interaction.reply({
                 content: "回答が見つかりませんでした。これが表示されているのは多分バグです。多分。"
             })
+            return;
         }
-        else{
-            await interaction.reply({
-                embeds: [embed],
-                ephemeral: true,
+        await interaction.reply({
+            embeds: [embed],
+            ephemeral: true,
+        })
+        const channel = client.channels.resolve(supportLogChannelId);
+        if (channel instanceof TextChannel){
+            const content = `${userMention(interaction.user.id)}が${match[1]}の${embed.title}を見ました`
+            await channel.send({
+                content: content,
+                allowedMentions: {
+                    roles: [],
+                    parse: [],
+                    users: [],
+                    repliedUser: false
+                }
             })
         }
 
