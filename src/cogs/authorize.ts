@@ -86,8 +86,8 @@ client.on('guildMemberAdd', async(member) => {
     const channel = client.channels.resolve(joinLogChannelId)
     if(channel instanceof TextChannel){
         await channel.send(
-            `${memberNicknameMention(member.id)}さん、ケシゴモンのサーバーへようこそ。
-            まずは${channelMention(ruleChannelId)}を確認してください！`
+            `${memberNicknameMention(member.id)}さん、ケシゴモンのサーバーへようこそ。\n`
+            + `まずは${channelMention(ruleChannelId)}を確認してください！`
         )
     }
 })
