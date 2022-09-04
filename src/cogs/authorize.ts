@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import {client} from '../index';
 import {joinLogChannelId, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
-import {memberNicknameMention} from '@discordjs/builders';
+import {channelMention, memberNicknameMention} from '@discordjs/builders';
 import {shuffle, sleep} from '../lib';
 import {MessageButtonStyles} from "discord.js/typings/enums";
 
@@ -73,6 +73,24 @@ const authorize = async (members: Array<GuildMember>) => {
         }
     })
 };
+
+client.on('guildMemberAdd', async(member) => {
+    if(member.user.bot){
+        return;
+    }
+    await sleep(3000);
+    member = await member.fetch(true);
+    if (member.roles.cache.size >= 2){
+        return
+    }
+    const channel = client.channels.resolve(joinLogChannelId)
+    if(channel instanceof TextChannel){
+        await channel.send(
+            `${memberNicknameMention(member.id)}さん、ケシゴモンのサーバーへようこそ。
+            まずは${channelMention(ruleChannelId)}を確認してください！`
+        )
+    }
+})
 
 client.on('presenceUpdate', async (before, after)=>{
     if (
