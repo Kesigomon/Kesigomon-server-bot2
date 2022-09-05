@@ -4,13 +4,13 @@ import {
     GuildMember, Interaction,
     InteractionResponseFields, MessageActionRow,
     MessageButton,
-    MessageEmbed, TextChannel
+    MessageEmbed, MessageMentionOptions, TextChannel
 } from 'discord.js';
 import {client} from '../index';
 import {joinLogChannelId, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
 import {channelMention, memberNicknameMention} from '@discordjs/builders';
 import {shuffle, sleep} from '../lib';
-import {MessageButtonStyles} from "discord.js/typings/enums";
+import {MessageButtonStyles} from 'discord.js/typings/enums';
 
 const InteractionIdPrefix = 'AuthorizeQuestion'
 const InteractionIdPrefixCorrect = InteractionIdPrefix + 'Correct'
@@ -26,34 +26,30 @@ const isAuthorizeable = (member: GuildMember) => {
 const checked_authorize = async (member: GuildMember) => {
     const guild = member.guild;
     await lock.acquire(AUTHORIZE, async () => {
+        member = await member.fetch(true);
         if ((await guild.fetchOwner()).presence?.status === 'online') {
-            await authorize([member]);
-        }
-        else{
+            await authorize([member], true);
+        } else {
             await member.roles.add(preAuthorizeRoleId)
             const channel = await guild.channels.fetch(joinLogChannelId)
             if (!(channel instanceof TextChannel)) {
                 return
             }
             await channel.send({
-                content: `${memberNicknameMention(member.id)}さんの仮認証が完了しました。\n`,
-                allowedMentions: {
-                    roles: [],
-                    parse: [],
-                    users: [],
-                    repliedUser: false
-                }
+                content: `${memberNicknameMention(member.id)}さんの仮認証が完了しました。\n`
+                    + 'オーナーがオンラインになると自動で認証されます。認証までしばらくお待ちください。',
             })
         }
     })
 }
 
-const authorize = async (members: Array<GuildMember>) => {
+const authorize = async (members: Array<GuildMember>, notify = false) => {
     if (members.length === 0) {
         return
     }
     await Promise.all(members.map(async (m) => {
-        await m.roles.remove(preAuthorizeRoleId).catch(() => {})
+        await m.roles.remove(preAuthorizeRoleId).catch(() => {
+        })
         await m.roles.add(normalUserRoleId)
     }));
     const channel = await members[0].guild.channels.fetch(joinLogChannelId)
@@ -63,28 +59,29 @@ const authorize = async (members: Array<GuildMember>) => {
     const mentions = members
         .map((m) => `${memberNicknameMention(m.id)}さん`)
         .join('、');
+    const allowedMentions: MessageMentionOptions = notify ? {} : {
+        roles: [],
+        parse: [],
+        users: [],
+        repliedUser: false
+    };
     await channel.send({
         content: `${mentions}の認証が完了しました。`,
-        allowedMentions: {
-            roles: [],
-            parse: [],
-            users: [],
-            repliedUser: false
-        }
+        allowedMentions: allowedMentions
     })
 };
 
-client.on('guildMemberAdd', async(member) => {
-    if(member.user.bot){
+client.on('guildMemberAdd', async (member) => {
+    if (member.user.bot) {
         return;
     }
     await sleep(3000);
     member = await member.fetch(true);
-    if (member.roles.cache.size >= 2){
+    if (member.roles.cache.size >= 2) {
         return
     }
     const channel = client.channels.resolve(joinLogChannelId)
-    if(channel instanceof TextChannel){
+    if (channel instanceof TextChannel) {
         await channel.send(
             `${memberNicknameMention(member.id)}さん、ケシゴモンのサーバーへようこそ。\n`
             + `まずは${channelMention(ruleChannelId)}を確認してください！`
@@ -92,7 +89,7 @@ client.on('guildMemberAdd', async(member) => {
     }
 })
 
-client.on('presenceUpdate', async (before, after)=>{
+client.on('presenceUpdate', async (before, after) => {
     if (
         !after.member
         // オーナー以外
@@ -101,11 +98,11 @@ client.on('presenceUpdate', async (before, after)=>{
         || before?.status === after.status
         // オンラインでない
         || after.status !== 'online'
-    ){
+    ) {
         return
     }
     const guild = after.member.guild;
-    await lock.acquire(AUTHORIZE, async () =>{
+    await lock.acquire(AUTHORIZE, async () => {
         await authorize(Array.from(guild.members.cache.filter(isAuthorizeable).values()));
     })
 })
@@ -140,9 +137,9 @@ client.on('interactionCreate', async (interaction) => {
     }
     if (
         interaction.member.roles.cache.size > 1
-    ){
+    ) {
         await interaction.reply({
-            content: "あなたはすでに認証、または仮認証されています。",
+            content: 'あなたはすでに認証、または仮認証されています。',
             ephemeral: true,
         })
         return
@@ -188,10 +185,9 @@ client.on('interactionCreate', async (interaction) => {
             `正解は${answerIs}です。
             \n\n${question.description}`
         )
-        if (index < questions.length - 1){
+        if (index < questions.length - 1) {
             embed2.setFooter({text: `${delay}秒後に次の問題が出ます。`})
-        }
-        else{
+        } else {
             embed2.setFooter({text: `${delay}秒後に認証・仮認証されます。`})
         }
         await newInteraction.reply({
