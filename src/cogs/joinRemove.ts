@@ -24,10 +24,9 @@ client.on('guildMemberAdd', async (member) => {
           ? `\nInviter:${userMention(invite.inviterId)}`
           : ""
       await channel.send(
-          `\
-          User:${memberNicknameMention(member.id)}(${member.displayName})\n\
-          Code:${invite.code}\
-          ${mention}`
+          `User:${memberNicknameMention(member.id)}(${member.displayName})\n`
+          + `Code:${invite.code}`
+          + mention
       )
       break
     }
