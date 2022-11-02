@@ -7,7 +7,7 @@ let oldInvite = new Collection<string, Invite>();
 
 client.on('ready', async(client) => {
   const guild = client.guilds.cache.first()!
-  oldInvite = guild.invites.cache.clone();
+  oldInvite = await guild.invites.fetch();
 
 })
 
