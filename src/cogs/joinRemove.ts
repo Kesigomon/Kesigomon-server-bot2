@@ -1,7 +1,7 @@
 import {client} from '../index';
 import {leaveLogChannelId} from '../constant';
 import {Collection, Invite, TextChannel} from 'discord.js';
-import {userMention} from '@discordjs/builders';
+import {memberNicknameMention, userMention} from '@discordjs/builders';
 
 let oldInvite = new Collection<string, Invite>();
 
@@ -18,13 +18,16 @@ client.on('guildMemberAdd', async (member) => {
   }
   const newInvite = await member.guild.invites.fetch({cache: false});
   for (const [id, invite] of newInvite.entries()) {
-    const srcInvite = newInvite.get(id)
+    const srcInvite = oldInvite.get(id)
     if(!srcInvite || srcInvite.uses !== invite.uses){
       const mention = invite.inviterId
           ? `\nInviter:${userMention(invite.inviterId)}`
           : ""
       await channel.send(
-          `Code:${invite.code}${mention}`
+          `\
+          User:${memberNicknameMention(member.id)}(${member.displayName})
+          Code:${invite.code}\
+          ${mention}`
       )
       break
     }
@@ -37,5 +40,5 @@ client.on('guildMemberRemove', async (member) => {
   if (!(channel instanceof TextChannel)){
     return
   }
-  await channel.send(`${userMention(member.id)}(${member.displayName})が退出しました`)
+  await channel.send(`${userMention(member.id)}(${member.user.username}#${member.user.discriminator})が退出しました`)
 })
