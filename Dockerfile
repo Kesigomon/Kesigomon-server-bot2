@@ -1,4 +1,4 @@
-FROM amd64/node:16.9.1-buster as bulider
+FROM node:16.9.1-buster as bulider
 WORKDIR /opt
 COPY package.json package-lock.json ./
 RUN npm i
