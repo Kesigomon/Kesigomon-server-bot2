@@ -7,7 +7,7 @@ import {
     MessageEmbed, MessageMentionOptions, TextChannel
 } from 'discord.js';
 import {client} from '../index';
-import {joinLogChannelId, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
+import {joinLogChannelId, newsChannelId, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
 import {channelMention, memberNicknameMention} from '@discordjs/builders';
 import {shuffle, sleep} from '../lib';
 import {MessageButtonStyles} from 'discord.js/typings/enums';
@@ -66,7 +66,8 @@ const authorize = async (members: Array<GuildMember>, notify = false) => {
         repliedUser: false
     };
     await channel.send({
-        content: `${mentions}の認証が完了しました。`,
+        content: `${mentions}の認証が完了しました。\n` +
+            `役職パネルv3の停止について確認したい方は、${channelMention(newsChannelId)}を確認して下さい。`,
         allowedMentions: allowedMentions
     })
 };
@@ -84,7 +85,8 @@ client.on('guildMemberAdd', async (member) => {
     if (channel instanceof TextChannel) {
         await channel.send(
             `${memberNicknameMention(member.id)}さん、ケシゴモンのサーバーへようこそ。\n`
-            + `まずは${channelMention(ruleChannelId)}を確認してください！`
+            + `まずは${channelMention(ruleChannelId)}を確認してください！\n`
+            + `役職パネルv3の停止について確認したい方は、${channelMention(newsChannelId)}を確認して下さい。`
         )
     }
 })
