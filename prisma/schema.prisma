@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id   BigInt @id
+  role Role[]
+}
+
+model Role {
+  id        BigInt
+  author    User   @relation(fields: [author_id], references: [id])
+  author_id BigInt
+
+  @@id([id, author_id])
+  @@index([author_id])
+}
+
+model Message {
+  id         BigInt   @id @default(autoincrement())
+  message_id BigInt
+  channel_id BigInt
+  author_id  BigInt
+  content    String
+  timestamp  DateTime
+}
