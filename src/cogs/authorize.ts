@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import {client} from '../index';
 import {joinLogChannelId, newsChannelId, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
-import {channelMention, memberNicknameMention} from '@discordjs/builders';
+import {channelMention, userMention} from '@discordjs/builders';
 import {shuffle, sleep} from '../lib';
 import {MessageButtonStyles} from 'discord.js/typings/enums';
 
@@ -36,7 +36,7 @@ const checked_authorize = async (member: GuildMember) => {
                 return
             }
             await channel.send({
-                content: `${memberNicknameMention(member.id)}さんの仮認証が完了しました。\n`
+                content: `${userMention(member.id)}さんの仮認証が完了しました。\n`
                     + 'オーナーがオンラインになると自動で認証されます。認証までしばらくお待ちください。',
             })
         }
@@ -57,7 +57,7 @@ const authorize = async (members: Array<GuildMember>, notify = false) => {
         return
     }
     const mentions = members
-        .map((m) => `${memberNicknameMention(m.id)}さん`)
+        .map((m) => `${userMention(m.id)}さん`)
         .join('、');
     const allowedMentions: MessageMentionOptions = notify ? {} : {
         roles: [],
@@ -84,7 +84,7 @@ client.on('guildMemberAdd', async (member) => {
     const channel = client.channels.resolve(joinLogChannelId)
     if (channel instanceof TextChannel) {
         await channel.send(
-            `${memberNicknameMention(member.id)}さん、ケシゴモンのサーバーへようこそ。\n`
+            `${userMention(member.id)}さん、ケシゴモンのサーバーへようこそ。\n`
             + `まずは${channelMention(ruleChannelId)}を確認してください！\n`
             + `役職パネルv3の停止について確認したい方は、${channelMention(newsChannelId)}を確認して下さい。`
         )

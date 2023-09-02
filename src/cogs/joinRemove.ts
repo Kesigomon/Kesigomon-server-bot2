@@ -1,7 +1,7 @@
 import {client} from '../index';
 import {leaveLogChannelId} from '../constant';
 import {Collection, Invite, TextChannel} from 'discord.js';
-import {memberNicknameMention, userMention} from '@discordjs/builders';
+import {userMention} from '@discordjs/builders';
 
 let oldInvite = new Collection<string, Invite>();
 
@@ -24,7 +24,7 @@ client.on('guildMemberAdd', async (member) => {
           ? `\nInviter:${userMention(invite.inviterId)}`
           : ""
       await channel.send(
-          `User:${memberNicknameMention(member.id)}(${member.displayName})\n`
+          `User:${userMention(member.id)}(${member.displayName})\n`
           + `Code:${invite.code}`
           + mention
       )

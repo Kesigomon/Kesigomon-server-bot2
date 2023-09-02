@@ -1,9 +1,11 @@
 import {token} from './constant'
 import * as discord from 'discord.js'
+import { PrismaClient } from '@prisma/client';
 
 export const client = new discord.Client({
     intents: 2 ** 15 - 1
 });
+export const prisma = new PrismaClient();
 
 process.on('unhandledRejection', ((reason) => {
     console.error(reason)
