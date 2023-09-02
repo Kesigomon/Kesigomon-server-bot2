@@ -11,6 +11,7 @@ FROM node:16.18.1-buster-slim
 WORKDIR /opt
 COPY package.json package-lock.json ./
 RUN npm i --omit dev
+COPY --from=bulider /opt/node_modules/.prisma/client /opt/node_modules/.prisma/client
 COPY --from=bulider /opt/out /opt/out
 CMD ["node", "out/index.js"]
 
