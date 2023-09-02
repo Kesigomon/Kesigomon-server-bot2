@@ -86,7 +86,6 @@ client.on('guildMemberAdd', async (member) => {
         await channel.send(
             `${userMention(member.id)}さん、ケシゴモンのサーバーへようこそ。\n`
             + `まずは${channelMention(ruleChannelId)}を確認してください！\n`
-            + `役職パネルv3の停止について確認したい方は、${channelMention(newsChannelId)}を確認して下さい。`
         )
     }
 })
