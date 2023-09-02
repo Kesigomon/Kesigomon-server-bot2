@@ -3,6 +3,9 @@ import {Message} from 'discord.js';
 
 
 client.on('messageCreate', async(message) => {
+  if(message.author.bot && message.author.username.startsWith("役職パネル")){
+    return
+  }
   await insertMessage(message)
 })
 
