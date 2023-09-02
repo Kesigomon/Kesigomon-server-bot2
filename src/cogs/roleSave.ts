@@ -38,7 +38,7 @@ const createUser = async (member_id: bigint) => {
       },
     })
   } catch (e) {
-    if (e instanceof PrismaClientKnownRequestError && e.code !== 'P2002') {
+    if (e instanceof PrismaClientKnownRequestError && e.code === 'P2002') {
       return false
     }
     throw e
