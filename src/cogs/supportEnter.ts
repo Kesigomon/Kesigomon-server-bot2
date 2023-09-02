@@ -83,13 +83,6 @@ const FrequentlyAskedQuestionsV2: EmbedWithTitle[] = [
 
 const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
     {
-        'title': '役職パネルが動かない',
-        'description': '原因: 現在BOT停止中のため\n' +
-            'Discordから「あなたのBOTはサービス利用規約/コミュニティガイドに違反しています」との通知を受け、現在BOTが停止している状態になります。\n' +
-            'しかし違反の心当たりがないため、現在Discord運営に問い合わせを行っております。\n\n' +
-            '利用者の皆様にはご迷惑をおかけしますが、ご理解の程よろしくお願いいたします。'
-    },
-    {
         'title': '基本的なコマンドの使い方を教えてほしい',
         'description': 'こちらをお読みください。\n'
             + 'https://rolepanelv3docmaster.gatsbyjs.io/quickstart'
@@ -170,13 +163,6 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
             }
         ],
         'title': 'ドキュメントを読みたい'
-    },
-    {
-        'title': '役職パネルが動かない',
-        'description': '原因: 現在BOT停止中のため\n' +
-            'Discordから「あなたのBOTはサービス利用規約/コミュニティガイドに違反しています」との通知を受け、現在BOTが停止している状態になります。\n' +
-            'しかし違反の心当たりがないため、現在Discord運営に問い合わせを行っております。\n\n' +
-            '利用者の皆様にはご迷惑をおかけしますが、ご理解の程よろしくお願いいたします。'
     }
 ]
 
@@ -236,7 +222,6 @@ export const regenEnterMessage = async (client: Client) => {
         });
     }
     await channel.send(
-        '**注意: 現在役職パネルv3はサービス停止中です**\n' +
         '上にv2, v3のよくある質問が書かれています。\n' +
         'リアクションを押すと、質問に対する回答が表示されます'
     )
