@@ -50,6 +50,7 @@ const updateMemberRole = async (member: GuildMember) => {
   const member_id = BigInt(member.id)
   await createUser(member_id)
   const roles = member.roles.cache.clone()
+      .filter((r) => r.id !== member.guild.id)
   const data = roles.map((r) => {
     return {
       id: BigInt(r.id),
