@@ -66,8 +66,7 @@ const authorize = async (members: Array<GuildMember>, notify = false) => {
         repliedUser: false
     };
     await channel.send({
-        content: `${mentions}の認証が完了しました。\n` +
-            `役職パネルv3の停止について確認したい方は、${channelMention(newsChannelId)}を確認して下さい。`,
+        content: `${mentions}の認証が完了しました。` +
         allowedMentions: allowedMentions
     })
 };
