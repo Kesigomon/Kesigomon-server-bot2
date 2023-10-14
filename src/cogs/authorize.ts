@@ -66,7 +66,7 @@ const authorize = async (members: Array<GuildMember>, notify = false) => {
         repliedUser: false
     };
     await channel.send({
-        content: `${mentions}の認証が完了しました。` +
+        content: `${mentions}の認証が完了しました。`,
         allowedMentions: allowedMentions
     })
 };
