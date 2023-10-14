@@ -8,3 +8,6 @@ export const normalUserRoleId = '704243568432381972'
 export const preAuthorizeRoleId = '757820730996949174'
 export const ruleChannelId = '704238827933270056'
 export const newsChannelId = '709411287368466493'
+export const kesigomonGptChannelId = '1162723315824205934'
+export const openAIKey = process.env.OPENAI_API_KEY
+export const openAIModelId = process.env.OPENAI_MODEL_ID
