@@ -55,6 +55,10 @@ client.on('messageCreate', async(message) => {
     max_tokens: 1,
   });
   const token = 4000 - (count_token.usage?.total_tokens ?? 0);
+  if(token < 0){
+    await message.reply({content: "コンテキストが長すぎます", allowedMentions: {parse: []}})
+    return;
+  }
   try{
     const completion = await openAI.chat.completions.create({
       model: openAIModelId ?? "gpt-3.5-turbo-0613",
@@ -72,7 +76,7 @@ client.on('messageCreate', async(message) => {
     if (reason === "length"){
       text += "\n長すぎたのでここで会話おわり"
     }
-    await message.reply({content: completion.message.content, allowedMentions: {parse: []}})
+    await message.reply({content: text, allowedMentions: {parse: []}})
   }
   catch (e) {
     await message.reply({content: "エラーが発生しました。", allowedMentions: {parse: []}})
