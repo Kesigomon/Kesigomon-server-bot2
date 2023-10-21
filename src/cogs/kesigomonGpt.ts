@@ -47,37 +47,35 @@ client.on('messageCreate', async(message) => {
   }
   messages.push({role: 'system', content: systemPrompt})
   messages.reverse()
-  let text = "";
-  while(true){
+  const count_token = await openAI.chat.completions.create({
+    model: openAIModelId ?? "gpt-3.5-turbo-0613",
+    messages: messages,
+    stream: false,
+    temperature: 0,
+    max_tokens: 1,
+  });
+  const token = 4097 - (count_token.usage?.total_tokens ?? 0);
+  try{
     const completion = await openAI.chat.completions.create({
       model: openAIModelId ?? "gpt-3.5-turbo-0613",
       messages: messages,
       stream: false,
       temperature: 0,
-      max_tokens: 2048,
+      max_tokens: token,
     }).then((c) => c.choices[0]);
     const reason = completion.finish_reason;
-    if(reason === "stop"){
-      text += completion.message.content;
-      break
-    }
-    else if(reason === "length") {
-      text += completion.message.content;
-      if (messages[messages.length - 1].role === "assistant") {
-        messages[messages.length - 1].content = text;
-      }
-      else{
-        messages.push({role: "assistant", content: text})
-      }
-    }
-    else if(reason === "content_filter"){
+    if(reason === "content_filter"){
       await message.reply({content: "にゃーん（社会性フィルター）", allowedMentions: {parse: []}})
       return;
     }
-    else{
-      await message.reply({content: "エラーが発生しました。", allowedMentions: {parse: []}})
-      return;
+    let text = completion.message.content ?? "";
+    if (reason === "length"){
+      text += "\n長すぎたのでここで会話おわり"
     }
+    await message.reply({content: completion.message.content, allowedMentions: {parse: []}})
   }
-  await message.reply({content: text, allowedMentions: {parse: []}})
+  catch (e) {
+    await message.reply({content: "エラーが発生しました。", allowedMentions: {parse: []}})
+    return;
+  }
 });
