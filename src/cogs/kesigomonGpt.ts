@@ -54,7 +54,7 @@ client.on('messageCreate', async(message) => {
     temperature: 0,
     max_tokens: 1,
   });
-  const token = 4097 - (count_token.usage?.total_tokens ?? 0);
+  const token = 4000 - (count_token.usage?.total_tokens ?? 0);
   try{
     const completion = await openAI.chat.completions.create({
       model: openAIModelId ?? "gpt-3.5-turbo-0613",
