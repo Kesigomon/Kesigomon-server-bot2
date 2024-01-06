@@ -85,7 +85,7 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
     {
         'title': '基本的なコマンドの使い方を教えてほしい',
         'description': 'こちらをお読みください。\n'
-            + 'https://rolepanelv3docmaster.gatsbyjs.io/quickstart'
+            + 'https://rolepanelv3.netlify.app/quickstart'
     },
     {
         'title': 'BOTの導入をしたい',
@@ -96,7 +96,7 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
         'title': '違うパネルが変更されてしまう・パネルが選択されていません。と表示された',
         'description': 'パネルの選択ができていない\n' +
             'コマンドの前にパネルを選択しましょう\n' +
-            'https://rolepanelv3docmaster.gatsbyjs.io/context/select\n\n' +
+            'https://rolepanelv3.netlify.app/context/select\n\n' +
             'Android版の場合は、/rp select コマンドを使うことで選択できます。',
     },
     {
@@ -159,7 +159,7 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
             {
                 'inline': true,
                 'name': '役職パネルv3ドキュメント',
-                'value': 'https://rolepanelv3docmaster.gatsbyjs.io/'
+                'value': 'https://rolepanelv3.netlify.app/'
             }
         ],
         'title': 'ドキュメントを読みたい'
