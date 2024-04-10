@@ -10,6 +10,7 @@ import {
 import {client} from '../index';
 import {supportLogChannelId} from '../constant';
 import {userMention} from '@discordjs/builders';
+import * as wasi from 'wasi';
 
 type EmbedWithTitle = (MessageEmbedOptions & { [P in 'title']: NonNullable<MessageEmbedOptions[P]> })
 
@@ -85,7 +86,7 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
     {
         'title': '基本的なコマンドの使い方を教えてほしい',
         'description': 'こちらをお読みください。\n'
-            + 'https://rolepanelv3.netlify.app/quickstart'
+            + 'https://w.atwiki.jp/discord_rolepanel/pages/23.html'
     },
     {
         'title': 'BOTの導入をしたい',
@@ -96,8 +97,7 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
         'title': '違うパネルが変更されてしまう・パネルが選択されていません。と表示された',
         'description': 'パネルの選択ができていない\n' +
             'コマンドの前にパネルを選択しましょう\n' +
-            'https://rolepanelv3.netlify.app/context/select\n\n' +
-            'Android版の場合は、/rp select コマンドを使うことで選択できます。',
+            'https://w.atwiki.jp/discord_rolepanel/pages/12.html'
     },
     {
         'fields': [
@@ -159,10 +159,16 @@ const FrequentlyAskedQuestionsV3: EmbedWithTitle[] = [
             {
                 'inline': true,
                 'name': '役職パネルv3ドキュメント',
-                'value': 'https://rolepanelv3.netlify.app/'
+                'value': 'https://w.atwiki.jp/discord_rolepanel'
             }
         ],
         'title': 'ドキュメントを読みたい'
+    },
+    {
+        'title': 'BOTがリアクションに反応しない',
+        'description': '理由:現在調査中のバグ。\n' +
+            '暫定的ですが、以下の手順で該当のパネルに再度反応するようになります。\n' +
+            'https://w.atwiki.jp/discord_rolepanel/pages/12.html'
     }
 ]
 
