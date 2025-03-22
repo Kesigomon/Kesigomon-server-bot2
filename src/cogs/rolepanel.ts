@@ -2,6 +2,7 @@ import { Client, ClientEvents, DiscordAPIError, Message, MessageEmbed } from 'di
 import { roleMention, userMention } from '@discordjs/builders'
 import { sleep } from '../lib'
 import { rolepanelLogChannelId, rolepanelUserId } from '../constant'
+import { client } from '..'
 
 const panelFotterName = '役職パネル'
 
@@ -16,10 +17,7 @@ const is403Error = (e: unknown): e is DiscordAPIError => {
     return e instanceof DiscordAPIError && e.httpStatus === 403
 }
 
-export async function onReactionAdd(
-    client: Client,
-    [reaction, user]: ClientEvents['messageReactionAdd']
-) {
+client.on('messageReactionAdd', async (reaction, user) => {
     // Ready前 or 自分自身のリアクションの場合は無視
     if (!client.user || user.id === client.user.id) {
         return
@@ -160,4 +158,4 @@ export async function onReactionAdd(
             await newMessage.delete()
         } catch { }
     }
-}
+});
