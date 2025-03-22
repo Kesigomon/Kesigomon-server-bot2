@@ -11,5 +11,6 @@ export const limitChannelId = '706052482555576330'
 export const normalUserRoleId = '704243568432381972'
 export const preAuthorizeRoleId = '757820730996949174'
 export const limitRoleId = '706049159827816470'
+export const messageLinkToStopRolepanel = 'https://discord.com/channels/704235909436145674/709411287368466493/1339118241985073152'
 export const openAIKey = process.env.OPENAI_API_KEY
 export const openAIModelId = process.env.OPENAI_MODEL_ID
