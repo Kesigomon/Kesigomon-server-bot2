@@ -1,4 +1,4 @@
-import { Client, ClientEvents, DiscordAPIError, Message, MessageEmbed } from 'discord.js'
+import { DiscordAPIError, Message, MessageEmbed } from 'discord.js'
 import { roleMention, userMention } from '@discordjs/builders'
 import { sleep } from '../lib'
 import { rolepanelLogChannelId, rolepanelUserId } from '../constant'

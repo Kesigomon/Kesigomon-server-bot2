@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 
 export const client = new discord.Client({
-    intents: 2 ** 15 - 1, partials: ['MESSAGE', 'CHANNEL', 'GUILD_MEMBER', 'USER']
+    intents: 2 ** 15 - 1, partials: ['MESSAGE', 'CHANNEL', 'GUILD_MEMBER', 'USER', 'REACTION']
 });
 export const prisma = new PrismaClient();
 
