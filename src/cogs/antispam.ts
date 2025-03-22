@@ -4,7 +4,7 @@ import { Message, TextChannel } from 'discord.js';
 
 const pattern = /[\w\-]{22,28}\.[\w\-]{4,8}\.[\w\-]{26,30}/;
 const pattern1 = /(@everyone|@here)/;
-const pattern2 = /<@.?(\d+?)>/;
+const pattern2 = /<@.?(\d+?)>/g;
 const pattern3 = /discord(?:\.gg|(app)?\.com\/invite)\/([a-zA-Z0-9]+)/;
 
 client.on("messageCreate", async (message) => {
