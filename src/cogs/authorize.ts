@@ -7,7 +7,7 @@ import {
     MessageEmbed, MessageMentionOptions, TextChannel
 } from 'discord.js';
 import {client} from '../index';
-import {joinLogChannelId, newsChannelId, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
+import {joinLogChannelId, messageLinkToStopRolepanel, newsChannelId, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
 import {channelMention, userMention} from '@discordjs/builders';
 import {shuffle, sleep} from '../lib';
 import {MessageButtonStyles} from 'discord.js/typings/enums';
@@ -84,7 +84,8 @@ client.on('guildMemberAdd', async (member) => {
     if (channel instanceof TextChannel) {
         await channel.send(
             `${userMention(member.id)}さん、ケシゴモンのサーバーへようこそ。\n`
-            + `まずは${channelMention(ruleChannelId)}を確認してください！\n`
+            + `まずは${channelMention(ruleChannelId)}を確認してください！\n\n`
+            + `役職パネルの停止につきましては、${messageLinkToStopRolepanel}をご確認ください。`
         )
     }
 })
