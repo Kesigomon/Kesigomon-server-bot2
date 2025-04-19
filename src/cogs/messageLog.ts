@@ -10,14 +10,9 @@ client.on('messageCreate', async(message) => {
 })
 
 client.on('messageUpdate', async(_, message) => {
-  if(!(message instanceof Message)){
-    const channel = client.channels.cache.get(message.id)
-    if(channel === undefined || !channel.isText()){
-      return
-    }
-    message = await channel.messages.fetch(message.id)
+  if(message.partial){
+    message = await message.fetch();
   }
-  
   await insertMessage(message)
 })
 

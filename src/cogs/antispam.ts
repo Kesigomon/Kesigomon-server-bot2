@@ -31,7 +31,7 @@ const handleMention = async (message: Message) => {
         return;
     }
     // メンション権限があるなら無視
-    if(member && message.channel.type !== 'DM' && message.channel.permissionsFor(member).has('MENTION_EVERYONE')){
+    if(member && !message.channel.isDMBased() && message.channel.permissionsFor(member).has('MentionEveryone')){
         return;
     }
     // メンションを含むメッセージを削除
