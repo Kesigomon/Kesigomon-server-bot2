@@ -115,10 +115,10 @@ client.on('ready', async () => {
     if (!(channel instanceof TextChannel)) {
         return
     }
-    const row = new MessageActionRow();
-    const button = new MessageButton()
+    const row = new ActionRowBuilder<ButtonBuilder>();
+    const button = new ButtonBuilder()
         .setLabel('このボタンを押すと認証できます。')
-        .setStyle(MessageButtonStyles.PRIMARY)
+        .setStyle(ButtonStyle.Primary)
         .setCustomId('AuthorizeQuestionStart')
     row.addComponents(button)
     await channel.send({
@@ -239,7 +239,7 @@ const questions: questionsType[] = [
 ]
 
 
-const appearQuiz = async (
+const appearQuiz = (
     interaction: ButtonInteraction<'cached'>,
     embed: EmbedBuilder,
     _selects: string[],
@@ -267,11 +267,10 @@ const appearQuiz = async (
         button.setCustomId((answer.at(i) ?? false ? InteractionIdPrefixCorrect : InteractionIdPrefixWrong) + `${i}`);
         row.addComponents(button);
     }
-    const response = await interaction.reply({
+    return interaction.followUp({
         components: rows,
         embeds: [embed],
         ephemeral: true,
         withResponse: true,
-    });
-    return response.resource?.message
+    })
 }
