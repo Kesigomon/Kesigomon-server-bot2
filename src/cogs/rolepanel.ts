@@ -14,7 +14,7 @@ const isPanel = (message: Message) => {
 }
 
 const is403Error = (e: unknown): e is DiscordAPIError => {
-    return e instanceof DiscordAPIError && e.code === 50013; // Use proper error code for Forbidden
+    return e instanceof DiscordAPIError && e.status === 403
 }
 
 client.on('messageReactionAdd', async (reaction, user) => {
