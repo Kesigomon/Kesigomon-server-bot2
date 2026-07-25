@@ -28,6 +28,7 @@ client.on("messageCreate", async (message) => {
 const handleHoneypot = async (message: Message) => {
     if (message.channelId !== constant.honeypotChannelId) return;
     if (message.author.bot) return;
+    await message.delete();
     await message.member?.ban({
         reason: "ハニーポットチャンネルへのメッセージ送信のため"
     });
