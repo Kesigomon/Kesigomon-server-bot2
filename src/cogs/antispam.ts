@@ -8,6 +8,8 @@ const pattern2 = /<@.?(\d+?)>/g;
 const pattern3 = /discord(?:\.gg|(app)?\.com\/invite)\/([a-zA-Z0-9]+)/;
 
 client.on("messageCreate", async (message) => {
+    // ハニーポットチャンネルの処理
+    await handleHoneypot(message);
     if (pattern.test(message.content)) {
         await message.delete()
         await message.member?.ban({
@@ -16,10 +18,20 @@ client.on("messageCreate", async (message) => {
     }
     // メンションの処理
     await handleMention(message);
-    
+
     // 招待リンクの処理
     await handleInviteLink(message);
+
+    
 })
+
+const handleHoneypot = async (message: Message) => {
+    if (message.channelId !== constant.honeypotChannelId) return;
+    if (message.author.bot) return;
+    await message.member?.ban({
+        reason: "ハニーポットチャンネルへのメッセージ送信のため"
+    });
+}
 
 const handleMention = async (message: Message) => {
     const member = message.member;
