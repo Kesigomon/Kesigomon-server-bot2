@@ -2,15 +2,16 @@ import AsyncLock from 'async-lock';
 import {
     ButtonInteraction,
     GuildMember, Interaction,
-    InteractionResponseFields, MessageActionRow,
-    MessageButton,
-    MessageEmbed, MessageMentionOptions, TextChannel
-} from 'discord.js';
+    TextChannel,
+    ActionRowBuilder,
+    ButtonBuilder,
+    EmbedBuilder,
+    ButtonStyle} from 'discord.js';
 import {client} from '../index';
-import {joinLogChannelId, messageLinkToStopRolepanel, newsChannelId, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
+import {joinLogChannelId, messageLinkToStopRolepanel, normalUserRoleId, preAuthorizeRoleId, ruleChannelId} from '../constant';
 import {channelMention, userMention} from '@discordjs/builders';
-import {shuffle, sleep} from '../lib';
-import {MessageButtonStyles} from 'discord.js/typings/enums';
+import {shuffle} from '../lib';
+import { setTimeout as sleep } from 'node:timers/promises'
 
 const InteractionIdPrefix = 'AuthorizeQuestion'
 const InteractionIdPrefixCorrect = InteractionIdPrefix + 'Correct'
@@ -59,7 +60,7 @@ const authorize = async (members: Array<GuildMember>, notify = false) => {
     const mentions = members
         .map((m) => `${userMention(m.id)}さん`)
         .join('、');
-    const allowedMentions: MessageMentionOptions = notify ? {} : {
+    const allowedMentions = notify ? {} : {
         roles: [],
         parse: [],
         users: [],
@@ -114,10 +115,10 @@ client.on('ready', async () => {
     if (!(channel instanceof TextChannel)) {
         return
     }
-    const row = new MessageActionRow();
-    const button = new MessageButton()
+    const row = new ActionRowBuilder<ButtonBuilder>();
+    const button = new ButtonBuilder()
         .setLabel('このボタンを押すと認証できます。')
-        .setStyle(MessageButtonStyles.PRIMARY)
+        .setStyle(ButtonStyle.Primary)
         .setCustomId('AuthorizeQuestionStart')
     row.addComponents(button)
     await channel.send({
@@ -146,14 +147,17 @@ client.on('interactionCreate', async (interaction) => {
         return
     }
     await interaction.deferUpdate();
-    let replyTo: InteractionResponseFields<'cached'> = interaction;
+    let replyTo: ButtonInteraction<'cached'> = interaction;
     let delay = 5;
     for (const [index, question] of questions.entries()) {
-        const embed1 = new MessageEmbed({
+        const embed1 = new EmbedBuilder({
             title: `第${index + 1}問`,
             description: question.question
         })
-        const message = await appearQuiz(replyTo, embed1, question.selects)
+        const message = await appearQuiz(replyTo, embed1, question.selects);
+        if (!message) {
+            return
+        }
         const newInteraction = await new Promise<ButtonInteraction<'cached'>>((resolve) => {
             const handler = async (newInteraction: Interaction) => {
                 if (
@@ -170,13 +174,13 @@ client.on('interactionCreate', async (interaction) => {
             client.on('interactionCreate', handler)
         })
         const isCorrect = newInteraction.customId.startsWith(InteractionIdPrefixCorrect)
-        const embed2 = new MessageEmbed()
+        const embed2 = new EmbedBuilder()
         if (isCorrect) {
             embed2.setTitle('正解です！')
-            embed2.setColor('GREEN')
+            embed2.setColor('Green')
         } else {
             embed2.setTitle('不正解です・・・')
-            embed2.setColor('RED')
+            embed2.setColor('Red')
             delay *= 2
         }
         const answerIs = question.selects.filter(
@@ -194,7 +198,7 @@ client.on('interactionCreate', async (interaction) => {
         await newInteraction.reply({
             embeds: [embed2],
             ephemeral: true,
-            fetchReply: true
+            withResponse: true
         })
         replyTo = newInteraction;
         await sleep(delay * 1000);
@@ -236,8 +240,8 @@ const questions: questionsType[] = [
 
 
 const appearQuiz = (
-    interaction: InteractionResponseFields<'cached'>,
-    embed: MessageEmbed,
+    interaction: ButtonInteraction<'cached'>,
+    embed: EmbedBuilder,
     _selects: string[],
     answer?: boolean[],
 ) => {
@@ -246,27 +250,27 @@ const appearQuiz = (
             .fill(true, 0, 1)
             .fill(false, 1);
     }
-    const rows: MessageActionRow[] = []
-    const selects = [..._selects.entries()]
-    shuffle(selects)
+    const rows: ActionRowBuilder<ButtonBuilder>[] = [];
+    const selects = [..._selects.entries()];
+    shuffle(selects);
     for (const [i, s] of selects) {
         let row;
         if (rows.length === 0 || rows[rows.length - 1].components.length >= 5) {
-            row = new MessageActionRow()
-            rows.push(row)
+            row = new ActionRowBuilder<ButtonBuilder>();
+            rows.push(row);
         } else {
-            row = rows[rows.length - 1]
+            row = rows[rows.length - 1];
         }
-        const button = new MessageButton()
-        button.setStyle(MessageButtonStyles.PRIMARY)
-        button.setLabel(s)
-        button.setCustomId((answer.at(i) ?? false ? InteractionIdPrefixCorrect : InteractionIdPrefixWrong) + `${i}`)
-        row.addComponents(button)
+        const button = new ButtonBuilder();
+        button.setStyle(ButtonStyle.Primary);
+        button.setLabel(s);
+        button.setCustomId((answer.at(i) ?? false ? InteractionIdPrefixCorrect : InteractionIdPrefixWrong) + `${i}`);
+        row.addComponents(button);
     }
     return interaction.followUp({
         components: rows,
         embeds: [embed],
         ephemeral: true,
-        fetchReply: true
+        withResponse: true,
     })
 }

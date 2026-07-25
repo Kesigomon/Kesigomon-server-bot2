@@ -1,4 +1,4 @@
-FROM node:16.18.1-buster as bulider
+FROM node:24.18.0-bookworm AS bulider
 WORKDIR /opt
 COPY package.json package-lock.json ./
 RUN npm i
@@ -7,7 +7,7 @@ COPY src ./src
 COPY prisma/schema.prisma ./prisma/schema.prisma
 RUN npm run build:production
 
-FROM node:16.18.1-buster-slim
+FROM node:24.18.0-bookworm-slim
 WORKDIR /opt
 COPY package.json package-lock.json ./
 RUN npm i --omit dev

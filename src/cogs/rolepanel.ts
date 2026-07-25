@@ -1,6 +1,6 @@
-import { DiscordAPIError, Message, MessageEmbed } from 'discord.js'
+import { DiscordAPIError, Message, EmbedBuilder, GuildTextBasedChannel, PermissionsBitField } from 'discord.js'
 import { roleMention, userMention } from '@discordjs/builders'
-import { sleep } from '../lib'
+import { setTimeout as sleep } from 'node:timers/promises'
 import { rolepanelLogChannelId, rolepanelUserId } from '../constant'
 import { client } from '..'
 
@@ -14,7 +14,7 @@ const isPanel = (message: Message) => {
 }
 
 const is403Error = (e: unknown): e is DiscordAPIError => {
-    return e instanceof DiscordAPIError && e.httpStatus === 403
+    return e instanceof DiscordAPIError && e.status === 403
 }
 
 client.on('messageReactionAdd', async (reaction, user) => {
@@ -25,16 +25,16 @@ client.on('messageReactionAdd', async (reaction, user) => {
     let message = reaction.message
     const guild = message.guild
     const me = guild?.members.me
-    const channel = message.channel
+    const channel = message.channel;
     // ギルドのメッセージ以外のリアクションは無視
-    if (!guild || !me || channel.type === 'DM') {
+    if (!guild || !me || channel.isDMBased()) {
         return
     }
     const permission = channel.permissionsFor(me)
     // メッセージの履歴を読む権限が無い場合は無視
     if (
-        !permission.has('READ_MESSAGE_HISTORY') ||
-        !permission.has('VIEW_CHANNEL')
+        !permission.has('ReadMessageHistory') ||
+        !permission.has('ViewChannel')
     ) {
         return
     }
@@ -95,8 +95,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
                 }
                 actionName += ':FAILED'
                 description = '役職の設定に失敗しました。\n'
-                const me = guild.me!
-                if (!me.permissions.has('MANAGE_ROLES')) {
+                const me = guild.members.me!
+                if (!me.permissions.has('ManageRoles')) {
                     description += 'BOTに「役職の管理」の権限が無いかも？'
                     reason = 'MISSING_PERMISSION'
                 } else if (me.roles.highest.position <= role.position) {
@@ -133,23 +133,23 @@ client.on('messageReactionAdd', async (reaction, user) => {
         }
         try{
             const logChannel = await guild.channels.fetch(rolepanelLogChannelId)
-            if(logChannel?.type === "GUILD_TEXT"){
+            if (logChannel?.isTextBased()) {
                 await logChannel.send({
                     content: logContent,
-                })
+                });
             }
         }
         catch(e){
             console.log(e)
         }
-        if (!channel.permissionsFor(client.user.id)?.has('SEND_MESSAGES')) {
+        if (!channel.permissionsFor(client.user)?.has('SendMessages')) {
             return
         }
         try {
             const newMessage = await channel.send({
                 content: userMention(user.id),
                 embeds: [
-                    new MessageEmbed({
+                    new EmbedBuilder({
                         description: description,
                     }),
                 ],
